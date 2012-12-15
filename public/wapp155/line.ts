@@ -22,7 +22,7 @@ var yVisitsAxis = d3.svg.axis()
 
 var yConvAxis = d3.svg.axis()
     .scale(yConvScale)
-    .orient("right");
+    .orient("right").tickFormat(a => parseInt(a*1000)/10 + '%');
 
 var visitsLine = d3.svg.line()
     .interpolate("basis")

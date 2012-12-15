@@ -25,6 +25,11 @@ app.configure('development', () => {
 
 // Routes
 
+app.get('/costrev', (req, res) => {
+    res.render('costrev', {});
+});
+
+
 app.get('/wapp155', (req, res) => {
     res.render('wapp155', {});
 });

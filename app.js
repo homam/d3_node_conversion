@@ -17,6 +17,10 @@ app.configure('development', function () {
     }));
 });
 // Routes
+app.get('/costrev', function (req, res) {
+    res.render('costrev', {
+    });
+});
 app.get('/wapp155', function (req, res) {
     res.render('wapp155', {
     });

@@ -48,6 +48,7 @@ interface ID3Base extends ID3Selectors {
     time: ID3Time;
     scale: {
         linear(): ID3LinearScale;
+        ordinal(o?:any): any;
     };
     interpolate: ID3BaseInterpolate;
     interpolateNumber: ID3BaseInterpolate;
