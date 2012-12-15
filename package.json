@@ -1,0 +1,10 @@
+﻿{
+  "name": "conversion",
+  "description": "Conversion D3 Demo",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.0.4",
+	"ejs": "*"
+  }
+}
