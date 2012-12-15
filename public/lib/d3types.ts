@@ -146,7 +146,7 @@ interface ID3Line {
     };
 };
 
-interface ID3Area {
+interface ID3Area extends Function {
     interpolate: {
         (o: string): ID3Area;
         (): string;

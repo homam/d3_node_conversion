@@ -3,6 +3,7 @@
 <head>
 	<title></title>
 	<script src="/lib/d3.v2.js"></script>
+	<script src="/lib/_.js"></script>
 	<style>
 		
 		body {
@@ -20,12 +21,16 @@
 		  display: none;
 		}
 
+		text.country {
+			font-size:22px;
+		}
+
 		.area.above {
-		  fill: rgb(252,141,89);
+		  fill: rgb(145,207,96);
 		}
 
 		.area.below {
-		  fill: rgb(145,207,96);
+		  fill: rgb(252,141,89);
 		}
 
 		.line {
@@ -34,13 +39,18 @@
 		  stroke-width: 1.5px;
 		}
 
-		.line.sf {
-			stroke: blue;
+		.line.rev {
+			stroke: darkgreen;
 		}
+
+		.line.cost {
+			stroke: darkred;
+		}
+
 	</style>
 </head>
 <body>
-	<h1>Index</h1>
+
 	<section id="graphs"></section>
 	<script src="/costrev/area.js"></script>
 </body>
