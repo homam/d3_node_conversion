@@ -51,11 +51,11 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
 
     yVisitsScale.domain([
       0,
-      d3.max(data, d => d.visits)
+      d3.max(raw, d => d.visits)
     ]);
     yConvScale.domain([
       0,
-      d3.max(data, d => (d.subscribers / d.visits))
+      d3.max(raw, d => (d.subscribers / d.visits))
     ]);
 
     var nested =d3.nest().key(d => d.page).key(d => d.type).entries(raw);

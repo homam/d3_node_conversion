@@ -50,13 +50,13 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
     }));
     yVisitsScale.domain([
         0, 
-        d3.max(data, function (d) {
+        d3.max(raw, function (d) {
             return d.visits;
         })
     ]);
     yConvScale.domain([
         0, 
-        d3.max(data, function (d) {
+        d3.max(raw, function (d) {
             return (d.subscribers / d.visits);
         })
     ]);
