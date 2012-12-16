@@ -24,16 +24,9 @@ app.configure('development', () => {
 });
 
 // Routes
-
-app.get('/costrev', (req, res) => {
-    res.render('costrev', {});
+['costrev','wapp155','linkpin'].forEach(v => {
+    app.get('/' + v, (req, res) => res.render(v, {}));
 });
-
-
-app.get('/wapp155', (req, res) => {
-    res.render('wapp155', {});
-});
-
 
 app.get('/', (req, res) => {
     res.render('index', {});

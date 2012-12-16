@@ -17,12 +17,14 @@ app.configure('development', function () {
     }));
 });
 // Routes
-app.get('/costrev', function (req, res) {
-    res.render('costrev', {
-    });
-});
-app.get('/wapp155', function (req, res) {
-    res.render('wapp155', {
+[
+    'costrev', 
+    'wapp155', 
+    'linkpin'
+].forEach(function (v) {
+    app.get('/' + v, function (req, res) {
+        return res.render(v, {
+        });
     });
 });
 app.get('/', function (req, res) {

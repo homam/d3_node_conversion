@@ -62,6 +62,7 @@ interface ID3Base extends ID3Selectors {
     layout: ID3Layout;
     svg: ID3Svg;
     random: ID3Random;
+    nest(): ID3Nest;
 }
 
 interface ID3Selection extends ID3Selectors {
@@ -134,7 +135,7 @@ interface ID3UpdateSelection extends ID3Selection {
     exit: () => ID3Selection;
 }
 
-interface ID3Line {
+interface ID3Line extends Function {
     x: {
         (map: (d: any) => number) : ID3Line;
     };
@@ -322,6 +323,13 @@ interface ID3SvgAxis {
 
 interface ID3Random {
     normal(mean?: number, deviation?: number): () => number;
+}
+
+interface ID3Nest {
+    key(map: (key: any) => any) : ID3Nest;
+    sortKeys(map: (a:any,b: any) => any);
+    map(arr:any[]):any[];
+    entries(arr: any[]): any[];
 }
 
 declare var d3: ID3Base;
