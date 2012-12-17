@@ -1,33 +1,25 @@
-Day,Page,Visits,Submission,Subscriber
-12/16/2012,FingerPrint^LinkPIN,605,11,10
-12/16/2012,FingerPrint^PIN,466,19,12
-12/16/2012,CoolBlue^LinkPIN,313,39,37
-12/16/2012,CoolBlue^PIN,472,38,25
-12/17/2012,FingerPrint^LinkPIN,628,33,30
-12/17/2012,FingerPrint^PIN,454,61,61
-12/17/2012,CoolBlue^LinkPIN,431,77,75
-12/17/2012,CoolBlue^PIN,339,54,46
-12/18/2012,FingerPrint^LinkPIN,438,14,9
-12/18/2012,FingerPrint^PIN,697,37,28
-12/18/2012,CoolBlue^LinkPIN,586,58,54
-12/18/2012,CoolBlue^PIN,614,38,35
-12/19/2012,FingerPrint^LinkPIN,526,49,43
-12/19/2012,FingerPrint^PIN,308,42,40
-12/19/2012,CoolBlue^LinkPIN,583,48,38
-12/19/2012,CoolBlue^PIN,345,40,40
-12/20/2012,FingerPrint^LinkPIN,642,71,70
-12/20/2012,FingerPrint^PIN,430,40,29
-12/20/2012,CoolBlue^LinkPIN,366,25,11
-12/20/2012,CoolBlue^PIN,317,77,76
-12/21/2012,FingerPrint^LinkPIN,384,77,70
-12/21/2012,FingerPrint^PIN,477,70,68
-12/21/2012,CoolBlue^LinkPIN,657,15,7
-12/21/2012,CoolBlue^PIN,692,56,48
-12/22/2012,FingerPrint^LinkPIN,521,67,53
-12/22/2012,FingerPrint^PIN,539,38,31
-12/22/2012,CoolBlue^LinkPIN,462,64,63
-12/22/2012,CoolBlue^PIN,502,19,15
-12/23/2012,FingerPrint^LinkPIN,434,39,34
-12/23/2012,FingerPrint^PIN,547,36,31
-12/23/2012,CoolBlue^LinkPIN,551,54,49
-12/23/2012,CoolBlue^PIN,348,78,74
+PageID,Day,Page,NONPIN_Visits,NONPIN_Submissions,NONPIN_Subscribers,PIN_Visits,PIN_Submissions,PIN_Subscribers
+360,12/16/2012,"M.W. CoolBlue Video, Test #LinkPIN ^LinkPIN",570,40,40,782,39,9
+369,12/16/2012,"M.W. CoolBlue Video, Test #LinkPIN ^PIN",598,39,39,791,38,5
+355,12/16/2012,"M.W. FingerPrint, Test #LinkPIN ^LinkPIN",252,8,8,743,25,3
+372,12/16/2012,"M.W. FingerPrint, Test #LinkPIN ^PIN",230,11,11,775,28,7
+361,12/16/2012,"M.W. Orange B2T, Test #LinkPIN ^LinkPIN",339,24,24,16,2,1
+367,12/16/2012,"M.W. Orange B2T, Test #LinkPIN ^PIN",376,21,21,6,0,0
+363,12/16/2012,"M.W. Penguin, Test #LinkPIN ^LinkPIN",134,7,7,768,51,9
+370,12/16/2012,"M.W. Penguin, Test #LinkPIN ^PIN",169,10,10,769,45,8
+359,12/16/2012,"M.W. Purple Ringtone, Test #LinkPIN ^LinkPIN",374,18,18,8,0,0
+368,12/16/2012,"M.W. Purple Ringtone, Test #LinkPIN ^PIN",420,24,24,2,0,0
+365,12/16/2012,"M.W. Titanic, Test #LinkPIN ^LinkPIN",159,11,11,797,38,9
+371,12/16/2012,"M.W. Titanic, Test #LinkPIN ^PIN",170,14,14,773,49,8
+360,12/17/2012,"M.W. CoolBlue Video, Test #LinkPIN ^LinkPIN",536,33,33,850,41,11
+369,12/17/2012,"M.W. CoolBlue Video, Test #LinkPIN ^PIN",531,35,35,825,27,4
+355,12/17/2012,"M.W. FingerPrint, Test #LinkPIN ^LinkPIN",203,6,6,807,28,5
+372,12/17/2012,"M.W. FingerPrint, Test #LinkPIN ^PIN",189,4,4,837,20,1
+361,12/17/2012,"M.W. Orange B2T, Test #LinkPIN ^LinkPIN",323,17,17,15,0,0
+367,12/17/2012,"M.W. Orange B2T, Test #LinkPIN ^PIN",337,17,17,13,0,0
+363,12/17/2012,"M.W. Penguin, Test #LinkPIN ^LinkPIN",143,4,4,843,39,2
+370,12/17/2012,"M.W. Penguin, Test #LinkPIN ^PIN",120,7,7,785,27,6
+359,12/17/2012,"M.W. Purple Ringtone, Test #LinkPIN ^LinkPIN",339,21,21,11,1,0
+368,12/17/2012,"M.W. Purple Ringtone, Test #LinkPIN ^PIN",404,31,31,11,1,0
+365,12/17/2012,"M.W. Titanic, Test #LinkPIN ^LinkPIN",113,4,4,843,34,4
+371,12/17/2012,"M.W. Titanic, Test #LinkPIN ^PIN",118,3,3,804,23,3

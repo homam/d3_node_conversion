@@ -39,11 +39,22 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         d.day = parseDate(d.Day);
         d.page = d.Page.split('^')[0];
         d.type = d.Page.split('^')[1];
-        d.visits = +d.Visits;
-        d.subscribers = +d.Subscriber;
+        d.nonPin = {
+            visits: +d.NONPIN_Visits,
+            submissions: +d.NONPIN_Submissions,
+            subscribers: +d.NONPIN_Subscribers
+        };
+        d.pin = {
+            visits: +d.PIN_Visits,
+            submissions: +d.PIN_Submissions,
+            subscribers: +d.PIN_Subscribers
+        };
+        d.subscribers = d.pin.subscribers + d.nonPin.subscribers;
+        d.visits = d.pin.visits + d.nonPin.visits;
     });
+    console.log(raw);
     var data = raw.filter(function (d) {
-        return d.Page == 'FingerPrint^LinkPIN';
+        return d.Page == raw[0].Page;
     });
     x.domain(d3.extent(data, function (d) {
         return d.day;
