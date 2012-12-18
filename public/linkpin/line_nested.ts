@@ -58,7 +58,7 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
     });
 
     raw = _(raw.map(r => [{
-        subMethod: 'Non-PIN Sub Methods',
+        subMethod: 'nonPIN Sub Methods',
         visits: r.nonPin.visits,
         submissions: r.nonPin.submissions,
         subscribers: r.nonPin.subscribers,
@@ -68,7 +68,7 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         Page: r.Page
         
     }, {
-        subMethod: 'PIN and LinkPIN Sub Methods',
+        subMethod: 'PIN Sub Method',
         visits: r.pin.visits,
         submissions: r.pin.submissions,
         subscribers: r.pin.subscribers,
@@ -104,25 +104,22 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         .enter().append("div").attr('class', 'subMethod');
     subMethods.append("h3").text(d => d.key);
 
-    //var types = subMethods.selectAll("div.type").data(d => d.values)
-    //    .enter().append("div").attr('class', 'type');
-    //types.append("h4").text(d => d.key);
+    var types = subMethods.selectAll("div.type").data(d => d.values)
+        .enter().append("div").attr('class', 'type');
+    types.append("h4").text(d => d.key);
     
     
-    var g =subMethods.append("svg")
+    var g =types.append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .datum(d => d.values);
-
-    ['PIN', 'LinkPIN'].forEach(subMethod => {
-        g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
-            .attr("class", "line visits " + subMethod).attr("d", (d, i) => visitsLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
-
-        g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
-            .attr("class", "line conversion " + subMethod).attr("d", (d, i) => convLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
-    });
+    g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
+        .attr("class", "line").attr("d", (d,i) => visitsLine.apply(this,arguments));
+    
+    g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
+        .attr("class", "line conversion").attr("d", (d,i) => convLine.apply(this,arguments));
         
         
         //types.append("div").selectAll("span.val").data(d => d.values)

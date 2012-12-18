@@ -10,6 +10,28 @@
 		  font: 10px sans-serif;
 		}
 
+		div.page {
+			clear:both;
+			margin-bottom: 20px;
+		}
+
+		div.page:before,
+		div.page:after {
+			content: " "; /* 1 */
+			display: table; /* 2 */
+		}
+		div.page:after {
+			clear: both;
+		}
+
+		div.subMethod {
+			float:left;
+		}
+
+		div.subMethod:last-child {
+			margin-left: 20px;
+		}
+
 		.axis path,
 		.axis line {
 		  fill: none;
@@ -30,17 +52,19 @@
 
 		.line {
 		  fill: none;
-		  stroke: #000;
 		  stroke-width: 1.5px;
 		}
 
-		.line.wapp155 {
+		.line.conversion {
+			 stroke-dasharray: 5,5;
+		}
+
+		.line.PIN {
 			stroke: blue;
 		}
 
-		.line.conversion {
-			 stroke: green;
-			 stroke-dasharray: 5,5;
+		.line.LinkPIN {
+			stroke: darkred;
 		}
 	</style>
 </head>

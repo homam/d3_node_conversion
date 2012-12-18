@@ -34,7 +34,6 @@ var convLine = d3.svg.line().interpolate("basis").x(function (d) {
     return yConvScale(d.subscribers / d.visits);
 });
 d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
-    var _this = this;
     raw.forEach(function (d) {
         d.day = parseDate(d.Day);
         d.page = d.Page.split('^')[0];
@@ -52,6 +51,30 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         d.subscribers = d.pin.subscribers + d.nonPin.subscribers;
         d.visits = d.pin.visits + d.nonPin.visits;
     });
+    raw = _(raw.map(function (r) {
+        return [
+            {
+                subMethod: 'Non-PIN Sub Methods',
+                visits: r.nonPin.visits,
+                submissions: r.nonPin.submissions,
+                subscribers: r.nonPin.subscribers,
+                type: r.type,
+                day: r.day,
+                page: r.page,
+                Page: r.Page
+            }, 
+            {
+                subMethod: 'PIN and LinkPIN Sub Methods',
+                visits: r.pin.visits,
+                submissions: r.pin.submissions,
+                subscribers: r.pin.subscribers,
+                type: r.type,
+                day: r.day,
+                page: r.page,
+                Page: r.Page
+            }
+        ];
+    })).flatten();
     console.log(raw);
     var data = raw.filter(function (d) {
         return d.Page == raw[0].Page;
@@ -74,6 +97,8 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
     var nested = d3.nest().key(function (d) {
         return d.page;
     }).key(function (d) {
+        return d.subMethod;
+    }).key(function (d) {
         return d.type;
     }).entries(raw);
     console.log(nested);
@@ -81,22 +106,39 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
     pages.append("h2").text(function (d) {
         return d.key;
     });
-    var types = pages.selectAll("div.type").data(function (d) {
+    var subMethods = pages.selectAll('div.subMethod').data(function (d) {
         return d.values;
-    }).enter().append("div").attr('class', 'type');
-    types.append("h3").text(function (d) {
+    }).enter().append("div").attr('class', 'subMethod');
+    subMethods.append("h3").text(function (d) {
         return d.key;
     });
-    var g = types.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(function (d) {
+    //var types = subMethods.selectAll("div.type").data(d => d.values)
+    //    .enter().append("div").attr('class', 'type');
+    //types.append("h4").text(d => d.key);
+    var g = subMethods.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(function (d) {
         return d.values;
     });
-    g.append("path").attr(//.attr('data-a', d=> console.log("arg", arguments))
-    "class", "line").attr("d", function (d, i) {
-        return visitsLine.apply(_this, arguments);
-    });
-    g.append("path").attr(//.attr('data-a', d=> console.log("arg", arguments))
-    "class", "line conversion").attr("d", function (d, i) {
-        return convLine.apply(_this, arguments);
+    [
+        'PIN', 
+        'LinkPIN'
+    ].forEach(function (subMethod) {
+        var _this = this;
+        g.append("path").attr(//.attr('data-a', d=> console.log("arg", arguments))
+        "class", "line visits " + subMethod).attr("d", function (d, i) {
+            return visitsLine.apply(_this, [
+                _(d).filter(function (i) {
+                    return i.key == subMethod;
+                })[0].values
+            ]);
+        });
+        g.append("path").attr(//.attr('data-a', d=> console.log("arg", arguments))
+        "class", "line conversion " + subMethod).attr("d", function (d, i) {
+            return convLine.apply(_this, [
+                _(d).filter(function (i) {
+                    return i.key == subMethod;
+                })[0].values
+            ]);
+        });
     });
     //types.append("div").selectAll("span.val").data(d => d.values)
     // .enter().append("span").attr("class", 'value').text(d =>JSON.stringify(d));
