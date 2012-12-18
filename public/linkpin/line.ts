@@ -2,9 +2,9 @@
 /// <reference path="../lib/underscore.browser.d.ts" />
 
 
-var margin = { top: 20, right: 50, bottom: 30, left: 50 },
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = { top: 20, right: 30, bottom: 30, left: 30 },
+    width = 400 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%m/%d/%Y").parse;
 
@@ -59,7 +59,7 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
 
     console.log(raw);
     
-     var data = raw.filter(d => d.Page == 'FingerPrint^LinkPIN');
+     var data = raw.filter(d => d.Page == raw[0].Page);
 
     x.domain(d3.extent(data, d => d.day));
 
