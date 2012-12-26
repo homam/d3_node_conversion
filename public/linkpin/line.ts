@@ -2,8 +2,8 @@
 /// <reference path="../lib/underscore.browser.d.ts" />
 
 
-var margin = { top: 20, right: 30, bottom: 30, left: 30 },
-    width = 400 - margin.left - margin.right,
+var margin = { top: 20, right: 30, bottom: 30, left: 40 },
+    width = 430 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%m/%d/%Y").parse;
@@ -11,6 +11,7 @@ var parseDate = d3.time.format("%m/%d/%Y").parse;
 var x = d3.time.scale().range([0, width]);
 
 var yVisitsScale = d3.scale.linear().range([height, 0]);
+var ySubscribersScale = d3.scale.linear().range([height, 0]);
 var yConvScale = d3.scale.linear().range([height, 0]);
 
 var xAxis = d3.svg.axis()
@@ -20,6 +21,10 @@ var xAxis = d3.svg.axis()
 var yVisitsAxis = d3.svg.axis()
     .scale(yVisitsScale)
     .orient("left");
+
+var ySubscribersAxis = d3.svg.axis()
+    .scale(ySubscribersScale)
+    .orient("right");
 
 var yConvAxis = d3.svg.axis()
     .scale(yConvScale)
@@ -34,6 +39,11 @@ var convLine = d3.svg.line()
     .interpolate("basis")
     .x(d => x(d.day))
     .y(d => yConvScale(d.subscribers / d.visits));
+
+var subscribersLine = d3.svg.line()
+    .interpolate("basis")
+    .x(d => x(d.day))
+    .y(d => { return ySubscribersScale(d.subscribers) });
 
 
 d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
@@ -64,6 +74,7 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         subscribers: r.nonPin.subscribers,
         type: r.type,
         day: r.day,
+        jDay: JSON.stringify(r.day),
         page: r.page,
         Page: r.Page
         
@@ -74,6 +85,7 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         subscribers: r.pin.subscribers,
         type: r.type,
         day: r.day,
+        jDay: JSON.stringify(r.day),
         page: r.page,
         Page: r.Page
     }])).flatten();
@@ -87,6 +99,10 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
     yVisitsScale.domain([
       0,
       d3.max(raw, d => d.visits)
+    ]);
+    ySubscribersScale.domain([
+      0,
+      d3.max(raw, d => d.subscribers*2) //*2 because LinkPIN + PIN
     ]);
     yConvScale.domain([
       0,
@@ -118,11 +134,27 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
 
     ['PIN', 'LinkPIN'].forEach(subMethod => {
         g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
-            .attr("class", "line visits " + subMethod).attr("d", (d, i) => visitsLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
+            .attr("class", "line visits " + subMethod).attr("d", (d, i) =>
+                visitsLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
 
         g.append("path")//.attr('data-a', d=> console.log("arg", arguments))
-            .attr("class", "line conversion " + subMethod).attr("d", (d, i) => convLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
+            .attr("class", "line conversion " + subMethod).attr("d", (d, i) => 
+                convLine.apply(this, [_(d).filter(i => i.key == subMethod)[0].values]));
     });
+
+    
+        g.append("path")
+            .attr("class", "line subscribers").attr("d", (d,i) =>
+                subscribersLine.apply(this, [
+                _(d[0].values.map(v => v.jDay )).union(d[1].values.map(v => v.jDay)).map(day => {
+                var pins = d[0].values.filter(v => v.jDay == day)[0];
+                var linkpins = d[1].values.filter(v => v.jDay == day)[0];
+                return {
+                    subscribers: (!!pins ? pins.subscribers : 0) + (!!linkpins ? linkpins.subscribers : 0),
+                    day: (!!pins ? pins.day : linkpins.day)
+                };
+            })    
+        ]));
         
         
         //types.append("div").selectAll("span.val").data(d => d.values)
@@ -138,11 +170,22 @@ d3.csv("/linkpin/Iraq_PIN_LinkPIN_Dummy.csv", function (raw) {
         .attr("class", "y axis")
         .call(yVisitsAxis)
         .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
+        .attr("transform", "rotate(-40)")
+        .attr("y", -15)
+        .attr("dy", ".81em")
         .style("text-anchor", "end")
         .text("Visits");
+
+    g.append("g")
+        .attr("class", "y axis subscribers")
+        .attr('transform', 'translate(' + (0)+ ',0)')
+        .call(ySubscribersAxis)
+        .append("text")
+        .attr("transform", "rotate(-40) translate(60,40)")
+        //.attr("y", 36)
+        //.attr("dy", "1.71em")
+        .style("text-anchor", "end")
+        .text("Subscribers");
 
     g.append("g")
         .attr("class", "y axis conversion")
