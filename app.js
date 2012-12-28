@@ -21,7 +21,8 @@ app.configure('development', function () {
     'costrev', 
     'wapp155', 
     'linkpin', 
-    'growth'
+    'growth', 
+    'growth-wiggle'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {

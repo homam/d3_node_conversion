@@ -24,7 +24,7 @@ app.configure('development', () => {
 });
 
 // Routes
-['costrev','wapp155','linkpin', 'growth'].forEach(v => {
+['costrev','wapp155','linkpin', 'growth', 'growth-wiggle'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 
