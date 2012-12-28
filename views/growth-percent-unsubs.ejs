@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Gowth</title>
+<script src="/lib/d3.v2.js"></script>
+	<script src="/lib/_.js"></script>
+	<style>
+		
+		body {
+		  font: 10px sans-serif;
+		}
+
+		div.page {
+			clear:both;
+			margin-bottom: 20px;
+		}
+
+		div.page:before,
+		div.page:after {
+			content: " "; /* 1 */
+			display: table; /* 2 */
+		}
+		div.page:after {
+			clear: both;
+		}
+
+		div.subMethod {
+			float:left;
+		}
+
+		div.subMethod:last-child {
+			margin-left: 20px;
+		}
+
+		.axis path,
+		.axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}
+		.axis.conversion path {
+			stroke: purple;
+		}
+
+
+		.y.axis.subs {
+			fill: green;
+		}
+
+		.y.axis.conversion {
+			fill: purple;
+		}
+
+		.line {
+		  fill: none;
+		  stroke-width: 1.5px;
+		}
+
+		.line.conversion {
+			 stroke-dasharray: 5,5;
+		}
+
+		.line.subs{ 
+			stroke: green;
+		}
+		.area.subs {
+			fill: green;
+		}
+		.area.subs.inUnsubsArea{
+			fill:rgba(6, 252, 6, 0.37);
+		}
+
+		.line.unsubs{
+			stroke:darkred;
+		}
+		.area.unsubs{
+			fill: darkred;
+		}
+
+	
+	</style>
+</head>
+<body>
+	<h1>Growth</h1>
+	
+	<script src="/growth/growth-percent-unsubs.js"></script>
+</body>
+</html>

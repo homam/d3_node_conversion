@@ -23,7 +23,8 @@ app.configure('development', function () {
     'linkpin', 
     'growth', 
     'growth-wiggle', 
-    'growth-unsubs'
+    'growth-unsubs', 
+    'growth-percent-unsubs'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {
