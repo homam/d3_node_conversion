@@ -15,7 +15,9 @@ var Dashboard;
             GrowthGraph.prototype.draw = function (data) {
                 var xScale = this.xScale, yScale = this.yScale, height = this.height;
                 yScale.domain([
-                    0, 
+                    d3.min(data, function (d) {
+                        return d.ActiveSubs;
+                    }), 
                     d3.max(data, function (d) {
                         return d.ActiveSubs;
                     })

@@ -10,7 +10,9 @@ var Dashboard;
         var SubMethodsBaseGraph = (function (_super) {
             __extends(SubMethodsBaseGraph, _super);
             function SubMethodsBaseGraph(drawLegend, wigglish) {
-                        _super.call(this, "body", null, null, 300);
+                        _super.call(this, "body", drawLegend ? {
+            bottom: 130
+        } : null, null, drawLegend ? 500 : 300);
                 this.drawLegend = drawLegend;
                 this.wigglish = wigglish;
             }
@@ -32,11 +34,13 @@ var Dashboard;
                 var stack = d3.layout.stack().values(function (d) {
                     return d.values;
                 });
-                stack = (stack).x(function (d) {
-                    return d.day;
-                }).y(function (d) {
-                    return d.y;
-                }).offset("wiggle");
+                if(this.wigglish) {
+                    stack = (stack).x(function (d) {
+                        return d.day;
+                    }).y(function (d) {
+                        return d.y;
+                    }).offset("wiggle");
+                }
                 subMethodNames = _.chain(subMethodNames).map(function (s) {
                     return ({
                         name: s,
@@ -73,16 +77,21 @@ var Dashboard;
                 }).attr("d", function (d) {
                     return subsArea(d.values);
                 });
-                var width = this.width, margin = this.margin, svg = this.svg;
-                var gLegend = svg.append("g").attr("transform", "rotate(90) translate(" + (height + margin.bottom) + "," + (-width - margin.left) + ")");
-                var legend = gLegend.selectAll(".legend").data(color.domain().slice().reverse()).enter().append("g").attr("class", "legend").attr("transform", function (d, i) {
-                    return "translate(0," + i * 20 + ")";
-                });
-                legend.append("rect").attr("x", 0).attr("width", 18).attr("height", 18).style("fill", color);
-                legend.append("text").attr("x", -10).attr("y", 9).attr("dy", ".35em").style("text-anchor", "end").style("fill", color).text(function (d) {
-                    return d;
-                });
+                if(this.drawLegend) {
+                    var width = this.width, margin = this.margin, svg = this.svg;
+                    var gLegend = svg.append("g").attr("transform", "rotate(90) translate(" + (height + margin.bottom) + "," + (-width - margin.left) + ")");
+                    var legend = gLegend.selectAll(".legend").data(color.domain().slice().reverse()).enter().append("g").attr("class", "legend").attr("transform", function (d, i) {
+                        return "translate(0," + i * 20 + ")";
+                    });
+                    legend.append("rect").attr("x", 0).attr("width", 18).attr("height", 18).style("fill", color);
+                    legend.append("text").attr("x", -10).attr("y", 9).attr("dy", ".35em").style("text-anchor", "end").style("fill", color).text(function (d) {
+                        return d;
+                    });
+                }
                 this.drawXAxis();
+                if(!this.wigglish) {
+                    this.drawYAxis('Subs');
+                }
             };
             return SubMethodsBaseGraph;
         })(Growth.Graph);

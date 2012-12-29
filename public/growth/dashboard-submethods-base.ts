@@ -2,7 +2,7 @@
 module Dashboard.Growth {
     export class SubMethodsBaseGraph extends Graph {
         constructor(private drawLegend:bool, private wigglish:bool) {
-            super("body", null, null, 300)
+            super("body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 500 : 300)
         }
 
         public draw(data: IData[]) {
@@ -21,7 +21,8 @@ module Dashboard.Growth {
 
 
             var stack = d3.layout.stack().values(d => d.values);
-            stack = (<any>stack).x(d => d.day).y(d => d.y).offset("wiggle");
+            if(this.wigglish)
+                stack = (<any>stack).x(d => d.day).y(d => d.y).offset("wiggle");
 
             subMethodNames = _.chain(subMethodNames).map(s => ({
                 name: s, 
@@ -48,29 +49,32 @@ module Dashboard.Growth {
                 .attr("d",d => subsArea(d.values));
 
 
-            var width = this.width, margin = this.margin, svg = this.svg;
+            if(this.drawLegend) {
+                var width = this.width, margin = this.margin, svg = this.svg;
 
-            var gLegend = svg.append("g")
-                .attr("transform", "rotate(90) translate("+ (height+margin.bottom) + "," +(-width-margin.left) + ")")
-            var legend = gLegend.selectAll(".legend")
-                .data(color.domain().slice().reverse())
-                .enter().append("g").attr("class", "legend")
-                .attr("transform", (d, i) => "translate(0," + i * 20 + ")");
+                var gLegend = svg.append("g")
+                    .attr("transform", "rotate(90) translate("+ (height+margin.bottom) + "," +(-width-margin.left) + ")")
+                var legend = gLegend.selectAll(".legend")
+                    .data(color.domain().slice().reverse())
+                    .enter().append("g").attr("class", "legend")
+                    .attr("transform", (d, i) => "translate(0," + i * 20 + ")");
 
-            legend.append("rect").
-                attr("x", 0)
-                .attr("width", 18).attr("height", 18)
-                .style("fill", color);
+                legend.append("rect").
+                    attr("x", 0)
+                    .attr("width", 18).attr("height", 18)
+                    .style("fill", color);
 
-            legend.append("text")
-                .attr("x", -10)
-                .attr("y", 9)
-                .attr("dy", ".35em")
-                .style("text-anchor", "end")
-                .style("fill", color)
-                .text(d => d);
-
+                legend.append("text")
+                    .attr("x", -10)
+                    .attr("y", 9)
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "end")
+                    .style("fill", color)
+                    .text(d => d);
+            }
             this.drawXAxis();
+            if(!this.wigglish)
+                this.drawYAxis('Subs');
         }
     }
 }

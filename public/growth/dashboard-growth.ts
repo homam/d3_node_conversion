@@ -10,7 +10,7 @@ module Dashboard.Growth {
                 yScale = this.yScale,
                 height = this.height;
 
-            yScale.domain([0, d3.max(data, d => d.ActiveSubs)]);
+            yScale.domain([d3.min(data, d => d.ActiveSubs), d3.max(data, d => d.ActiveSubs)]);
 
             var activeSubsLine = d3.svg.line().interpolate("basis")
                 .x(d => xScale(d.day))
