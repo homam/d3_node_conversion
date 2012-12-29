@@ -1,6 +1,7 @@
 interface ID3Selectors {
     select: (selector: string) => ID3Selection;
     selectAll: (selector: string) => ID3Selection;
+    filter: (f: (a) => bool) => ID3Selection;
 }
 
 interface ID3Base extends ID3Selectors {
@@ -318,6 +319,7 @@ interface ID3SvgAxis {
     
     tickSubdivide(count: number): ID3SvgAxis;
     tickSize(major?: number, minor?: number, end?: number): ID3SvgAxis;
+    tickSize(options: any): ID3SvgAxis;
     tickFormat(formatter: (value: any) => string): ID3SvgAxis;
 }
 

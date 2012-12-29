@@ -81,12 +81,15 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
             };
             Graph.prototype.drawXAxis = function () {
                 var g = this.g, xAxis = this.xAxis, height = this.height;
-                g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+                xAxis.tickSize(-this.height, -this.height, -this.height);
+                g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height) + ")").call(xAxis).selectAll('g text').attr("transform", "translate(0,5)");
                 return this;
             };
             Graph.prototype.drawYAxis = function (label) {
                 var g = this.g, yAxis = this.yAxis;
-                g.append("g").attr("class", "y axis").call(yAxis).append("text").attr("transform", "rotate(-90) translate(0,10)").style("text-anchor", "end").text(label);
+                yAxis.tickSize(-this.width);
+                g.append("g").attr("class", "y axis").call(yAxis).selectAll('g text').attr("transform", "translate(-2,0)");
+                g.append("text").attr("transform", "rotate(-90) translate(-5,12)").style("text-anchor", "end").text(label);
                 return this;
             };
             return Graph;

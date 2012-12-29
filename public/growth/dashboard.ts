@@ -104,18 +104,22 @@ module Dashboard.Growth {
             var g = this.g,
                 xAxis = this.xAxis,
                 height = this.height;
+            xAxis.tickSize(-this.height,-this.height,-this.height);
             g.append("g").attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + (height) + ")")
+                .call(xAxis)
+                .selectAll('g text').attr("transform", "translate(0,5)");
             return this;
         }
 
         public drawYAxis(label) {
             var g = this.g,
                 yAxis = this.yAxis;
+            yAxis.tickSize(-this.width);
             g.append("g").attr("class", "y axis")
                 .call(yAxis)
-                .append("text").attr("transform", "rotate(-90) translate(0,10)")
+                .selectAll('g text').attr("transform", "translate(-2,0)");
+             g.append("text").attr("transform", "rotate(-90) translate(-5,12)")
                 .style("text-anchor", "end").text(label);
             return this;
         }

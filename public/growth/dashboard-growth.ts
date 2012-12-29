@@ -10,14 +10,15 @@ module Dashboard.Growth {
                 yScale = this.yScale,
                 height = this.height;
 
-            yScale.domain([d3.min(data, d => d.ActiveSubs), d3.max(data, d => d.ActiveSubs)]);
+            var domainMin = d3.min(data, d => d.ActiveSubs);
+            yScale.domain([domainMin, d3.max(data, d => d.ActiveSubs)]);
 
             var activeSubsLine = d3.svg.line().interpolate("basis")
                 .x(d => xScale(d.day))
                 .y(d => yScale(d.ActiveSubs));
-            var subsArea = d3.svg.area().interpolate("basis")
+            var activeSubsArea = d3.svg.area().interpolate("basis")
                 .x(d => xScale(d.day))
-                .y0(d => yScale(0))
+                .y0(d => yScale(domainMin))
                 .y1(d => yScale(d.ActiveSubs));
 
             var g = this.g.datum(data);
@@ -26,7 +27,7 @@ module Dashboard.Growth {
                 .attr("d",activeSubsLine);
 
             g.append("path").attr("class", "subs area")
-                .attr("d",subsArea);
+                .attr("d",activeSubsArea);
 
             this.drawXAxis().drawYAxis('Active Subscribers');
         }

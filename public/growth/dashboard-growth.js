@@ -14,10 +14,11 @@ var Dashboard;
             }
             GrowthGraph.prototype.draw = function (data) {
                 var xScale = this.xScale, yScale = this.yScale, height = this.height;
+                var domainMin = d3.min(data, function (d) {
+                    return d.ActiveSubs;
+                });
                 yScale.domain([
-                    d3.min(data, function (d) {
-                        return d.ActiveSubs;
-                    }), 
+                    domainMin, 
                     d3.max(data, function (d) {
                         return d.ActiveSubs;
                     })
@@ -27,16 +28,16 @@ var Dashboard;
                 }).y(function (d) {
                     return yScale(d.ActiveSubs);
                 });
-                var subsArea = d3.svg.area().interpolate("basis").x(function (d) {
+                var activeSubsArea = d3.svg.area().interpolate("basis").x(function (d) {
                     return xScale(d.day);
                 }).y0(function (d) {
-                    return yScale(0);
+                    return yScale(domainMin);
                 }).y1(function (d) {
                     return yScale(d.ActiveSubs);
                 });
                 var g = this.g.datum(data);
                 g.append("path").attr("class", "subs line").attr("d", activeSubsLine);
-                g.append("path").attr("class", "subs area").attr("d", subsArea);
+                g.append("path").attr("class", "subs area").attr("d", activeSubsArea);
                 this.drawXAxis().drawYAxis('Active Subscribers');
             };
             return GrowthGraph;

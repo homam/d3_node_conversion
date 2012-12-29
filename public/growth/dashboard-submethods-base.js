@@ -12,12 +12,13 @@ var Dashboard;
             function SubMethodsBaseGraph(drawLegend, wigglish) {
                         _super.call(this, "body", drawLegend ? {
             bottom: 130
-        } : null, null, drawLegend ? 500 : 300);
+        } : null, null, drawLegend ? 600 : 300);
                 this.drawLegend = drawLegend;
                 this.wigglish = wigglish;
             }
             SubMethodsBaseGraph.prototype.draw = function (data) {
                 var xScale = this.xScale, yScale = this.yScale, height = this.height, subMethodNames = Dashboard.Growth.subMethodNames, g = this.g;
+                this.svg.attr('class', (this.svg.attr('class') || '') + ' subMethods ' + (this.wigglish ? 'wigglish' : ''));
                 yScale.domain([
                     0, 
                     d3.max(data, function (d) {
@@ -76,6 +77,8 @@ var Dashboard;
                     return color(d.name);
                 }).attr("d", function (d) {
                     return subsArea(d.values);
+                }).append("svg:title").text(function (d) {
+                    return d.name;
                 });
                 if(this.drawLegend) {
                     var width = this.width, margin = this.margin, svg = this.svg;

@@ -2,7 +2,7 @@
 module Dashboard.Growth {
     export class SubMethodsBaseGraph extends Graph {
         constructor(private drawLegend:bool, private wigglish:bool) {
-            super("body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 500 : 300)
+            super("body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
         }
 
         public draw(data: IData[]) {
@@ -11,6 +11,8 @@ module Dashboard.Growth {
                 height = this.height,
                 subMethodNames = Dashboard.Growth.subMethodNames,
                 g = this.g;
+
+            this.svg.attr('class', (this.svg.attr('class')||'') + ' subMethods ' + (this.wigglish ? 'wigglish' : ''));
 
 
             yScale.domain([0, d3.max(data, d => d.Subs)]);
@@ -46,7 +48,8 @@ module Dashboard.Growth {
 
             methods.append("path").attr("class", "area subs")
                 .style('fill', d => color(d.name))
-                .attr("d",d => subsArea(d.values));
+                .attr("d",d => subsArea(d.values))
+                .append("svg:title").text(d => d.name);
 
 
             if(this.drawLegend) {
