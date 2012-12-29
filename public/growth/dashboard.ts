@@ -33,27 +33,44 @@ module Dashboard.Growth {
 
     export var subMethodNames = _subMethodNames;
 
-    var dataDeferred = $.Deferred();
+    export interface IDataLoader {
+        load(): JQueryPromise;
+    }
 
-    
-    d3.csv('/growth/du_bbay.csv', (raw: any[]) => {
-        var parseDate = d3.time.format("%m/%d/%Y").parse;
-        raw.forEach(d => {
-            d.day = parseDate(d.Day);
-            d.Subs = parseInt(d.Subs);
-            d.ActiveSubs = +d['Active Subs'];
-            d.Unsubs = +d['Un Subs'];
-            _subMethodNames.forEach(sm => {
-                d[sm] = +d[sm];
-            });
-            return d;
-        });
+    export class DataLoader implements IDataLoader {
+        constructor(private url: string) {
+        }
 
-        dataDeferred.resolve(raw);
-    })
+        private loader: JQueryDeferred;
+
+        public load(): JQueryDeferred {
+            if (!this.loader) {
+                this.loader = $.Deferred();
+                var self = this;
+                d3.csv(self.url, (raw: any[]) => {
+                    var parseDate = d3.time.format("%m/%d/%Y").parse;
+                    raw.forEach(d => {
+                        d.day = parseDate(d.Day);
+                        d.Subs = parseInt(d.Subs);
+                        d.ActiveSubs = +d['Active Subs'];
+                        d.Unsubs = +d['Un Subs'];
+                        _subMethodNames.forEach(sm => {
+                            d[sm] = +d[sm];
+                        });
+                        return d;
+                    });
+
+                    self.loader.resolve(raw);
+                });
+            }
+
+            return this.loader;
+        }
+    }
+   
 
     export class Graph {
-        constructor(selector, margin?:IMargin, width?:number, height?:number) {
+        constructor(loader:IDataLoader, selector, margin?:IMargin, width?:number, height?:number) {
             margin = <IMargin> $.extend(_.clone(_margin), margin || {});
             width = adjustWidthByMargin(width || _width, margin);
             height = adjustHeightByMargin(height || _height, margin);
@@ -78,7 +95,7 @@ module Dashboard.Growth {
             this.yAxis = d3.svg.axis().scale(this.yScale).orient("left");
 
             var self = this;
-            dataDeferred.done((data: IData[]) => {
+            loader.load().done((data: IData[]) => {
                 self.xScale.domain(d3.extent(data, d => d.day));
                 self.draw(data);
             });
@@ -96,7 +113,7 @@ module Dashboard.Growth {
         public xAxis: ID3SvgAxis;
         public yAxis: ID3SvgAxis;
 
-        public draw(data:IData[]): void {
+        public draw(data:any[]): void {
             console.log("not implemented");
         }
 
@@ -112,16 +129,35 @@ module Dashboard.Growth {
             return this;
         }
 
-        public drawYAxis(label) {
+        public drawYAxis(label?: string, lineTicks:bool = true) {
             var g = this.g,
                 yAxis = this.yAxis;
-            yAxis.tickSize(-this.width);
-            g.append("g").attr("class", "y axis")
-                .call(yAxis)
-                .selectAll('g text').attr("transform", "translate(-2,0)");
-             g.append("text").attr("transform", "rotate(-90) translate(-5,12)")
+
+            var axis = this.drawCustomYAxis(g, yAxis, lineTicks);
+            axis.label.attr("transform", "rotate(-90) translate(-5,12)")
                 .style("text-anchor", "end").text(label);
             return this;
+        }
+
+        public drawCustomYAxis(g:ID3Selection, yAxis: ID3SvgAxis,
+            lineTicks:bool = false) {
+            
+            if(lineTicks)
+                yAxis.tickSize(-this.width);
+
+            var gAxis = g.append("g").attr("class", "y axis");
+            var tickGroups = gAxis.call(yAxis);
+            var texts = tickGroups.selectAll('g text').attr("transform", "translate(-2,0)");
+
+
+            var label = gAxis.append("text");
+            
+            return {
+                group: gAxis,
+                tickGroups: tickGroups,
+                texts: texts,
+                label: label
+            };
         }
     }
 

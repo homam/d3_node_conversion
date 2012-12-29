@@ -72,43 +72,43 @@ interface ID3Selection extends ID3Selectors {
         (name: string, value: any): ID3Selection;
         (name: string, valueFunction: (data: any, index: number) => any): ID3Selection;
     };
-    
+
     classed: {
         (name: string): string;
         (name: string, value: any): ID3Selection;
         (name: string, valueFunction: (data: any, index: number) => any): ID3Selection;
     };
-    
+
     style: {
         (name: string): string;
         (name: string, value: any, priority?: string): ID3Selection;
         (name: string, valueFunction: (data: any, index: number) => any, priority?: string): ID3Selection;
     };
-    
+
     property: {
         (name: string): void;
         (name: string, value: any): ID3Selection;
         (name: string, valueFunction: (data: any, index: number) => any): ID3Selection;
     };
-    
+
     text: {
         (): string;
         (value: any): ID3Selection;
         (valueFunction: (data: any, index: number) => any): ID3Selection;
     };
-    
+
     html: {
         (): string;
         (value: any): ID3Selection;
         (valueFunction: (data: any, index: number) => any): ID3Selection;
     };
-    
+
     append: (name: string) => ID3Selection;
     insert: (name: string, before: string) => ID3Selection;
     remove: () => ID3Selection;
-    
+
     data: {
-        (values: (data: any, index: number) => any) : any;
+        (values: (data: any, index: number) => any): any;
         (values: any[], key?: (data: any, index: number) => any): ID3UpdateSelection;
     };
 
@@ -116,10 +116,26 @@ interface ID3Selection extends ID3Selectors {
         (): any;
         (values: any): any;
         (values: any[]): any;
-        (values: (lastDatum:any,i:number) => any): any;
+        (values: (lastDatum: any, i: number) => any): any;
+    };
+
+    transition: {
+        (): ID3Selection;
+    };
+
+    duration: {
+        (time: number): ID3Selection;
     };
     
-    call(callback: (selection: ID3Selection) => void): ID3Selection;   
+    ease: {
+        (func: string): ID3Selection;
+    };
+
+    each: {
+        (a: string, b: any): ID3Selection;
+    };
+
+    call(callback: (selection: ID3Selection) => void ): ID3Selection;
 }
 
 interface ID3EnterSelection {

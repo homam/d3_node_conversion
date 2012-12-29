@@ -9,8 +9,8 @@ var Dashboard;
     (function (Growth) {
         var GrowthGraph = (function (_super) {
             __extends(GrowthGraph, _super);
-            function GrowthGraph() {
-                        _super.call(this, "body", null, null, 300);
+            function GrowthGraph(loader) {
+                        _super.call(this, loader, "body", null, null, 300);
             }
             GrowthGraph.prototype.draw = function (data) {
                 var xScale = this.xScale, yScale = this.yScale, height = this.height;

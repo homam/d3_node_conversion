@@ -30,23 +30,36 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
             'GooglePlay'
         ];
         Growth.subMethodNames = _subMethodNames;
-        var dataDeferred = $.Deferred();
-        d3.csv('/growth/du_bbay.csv', function (raw) {
-            var parseDate = d3.time.format("%m/%d/%Y").parse;
-            raw.forEach(function (d) {
-                d.day = parseDate(d.Day);
-                d.Subs = parseInt(d.Subs);
-                d.ActiveSubs = +d['Active Subs'];
-                d.Unsubs = +d['Un Subs'];
-                _subMethodNames.forEach(function (sm) {
-                    d[sm] = +d[sm];
-                });
-                return d;
-            });
-            dataDeferred.resolve(raw);
-        });
+        var DataLoader = (function () {
+            function DataLoader(url) {
+                this.url = url;
+            }
+            DataLoader.prototype.load = function () {
+                if(!this.loader) {
+                    this.loader = $.Deferred();
+                    var self = this;
+                    d3.csv(self.url, function (raw) {
+                        var parseDate = d3.time.format("%m/%d/%Y").parse;
+                        raw.forEach(function (d) {
+                            d.day = parseDate(d.Day);
+                            d.Subs = parseInt(d.Subs);
+                            d.ActiveSubs = +d['Active Subs'];
+                            d.Unsubs = +d['Un Subs'];
+                            _subMethodNames.forEach(function (sm) {
+                                d[sm] = +d[sm];
+                            });
+                            return d;
+                        });
+                        self.loader.resolve(raw);
+                    });
+                }
+                return this.loader;
+            };
+            return DataLoader;
+        })();
+        Growth.DataLoader = DataLoader;        
         var Graph = (function () {
-            function Graph(selector, margin, width, height) {
+            function Graph(loader, selector, margin, width, height) {
                 margin = $.extend(_.clone(_margin), margin || {
                 });
                 width = adjustWidthByMargin(width || _width, margin);
@@ -69,7 +82,7 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                 this.xAxis = d3.svg.axis().scale(this.xScale).orient("bottom");
                 this.yAxis = d3.svg.axis().scale(this.yScale).orient("left");
                 var self = this;
-                dataDeferred.done(function (data) {
+                loader.load().done(function (data) {
                     self.xScale.domain(d3.extent(data, function (d) {
                         return d.day;
                     }));
@@ -85,12 +98,28 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                 g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height) + ")").call(xAxis).selectAll('g text').attr("transform", "translate(0,5)");
                 return this;
             };
-            Graph.prototype.drawYAxis = function (label) {
+            Graph.prototype.drawYAxis = function (label, lineTicks) {
+                if (typeof lineTicks === "undefined") { lineTicks = true; }
                 var g = this.g, yAxis = this.yAxis;
-                yAxis.tickSize(-this.width);
-                g.append("g").attr("class", "y axis").call(yAxis).selectAll('g text').attr("transform", "translate(-2,0)");
-                g.append("text").attr("transform", "rotate(-90) translate(-5,12)").style("text-anchor", "end").text(label);
+                var axis = this.drawCustomYAxis(g, yAxis, lineTicks);
+                axis.label.attr("transform", "rotate(-90) translate(-5,12)").style("text-anchor", "end").text(label);
                 return this;
+            };
+            Graph.prototype.drawCustomYAxis = function (g, yAxis, lineTicks) {
+                if (typeof lineTicks === "undefined") { lineTicks = false; }
+                if(lineTicks) {
+                    yAxis.tickSize(-this.width);
+                }
+                var gAxis = g.append("g").attr("class", "y axis");
+                var tickGroups = gAxis.call(yAxis);
+                var texts = tickGroups.selectAll('g text').attr("transform", "translate(-2,0)");
+                var label = gAxis.append("text");
+                return {
+                    group: gAxis,
+                    tickGroups: tickGroups,
+                    texts: texts,
+                    label: label
+                };
             };
             return Graph;
         })();

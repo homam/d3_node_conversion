@@ -1,8 +1,8 @@
 ﻿    /// <reference path="dashboard.ts" />
 module Dashboard.Growth {
     export class SubMethodsBaseGraph extends Graph {
-        constructor(private drawLegend:bool, private wigglish:bool) {
-            super("body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
+        constructor(loader:DataLoader,private drawLegend:bool, private wigglish:bool) {
+            super(loader,"body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
         }
 
         public draw(data: IData[]) {
@@ -68,10 +68,8 @@ module Dashboard.Growth {
                     .style("fill", color);
 
                 legend.append("text")
-                    .attr("x", -10)
-                    .attr("y", 9)
-                    .attr("dy", ".35em")
-                    .style("text-anchor", "end")
+                    .attr("transform", "rotate(180) translate(5,-6)")
+                    .style("text-anchor", "start")
                     .style("fill", color)
                     .text(d => d);
             }

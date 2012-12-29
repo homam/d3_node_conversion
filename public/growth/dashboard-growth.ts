@@ -1,8 +1,8 @@
 ﻿/// <reference path="dashboard.ts" />
 module Dashboard.Growth {
     export class GrowthGraph extends Graph {
-        constructor() {
-            super("body",null,null,300)
+        constructor(loader:DataLoader) {
+            super(loader,"body",null,null,300)
         }
 
         public draw(data:IData[]) {

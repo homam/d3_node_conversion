@@ -9,8 +9,8 @@ var Dashboard;
     (function (Growth) {
         var SubUnsubDiff = (function (_super) {
             __extends(SubUnsubDiff, _super);
-            function SubUnsubDiff() {
-                        _super.call(this, "body", null, null, 300);
+            function SubUnsubDiff(loader) {
+                        _super.call(this, loader, "body", null, null, 300);
             }
             SubUnsubDiff.prototype.draw = function (data) {
                 var xScale = this.xScale, yScale = this.yScale, height = this.height;

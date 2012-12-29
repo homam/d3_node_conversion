@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Page Stats</title>
+	<script src="/lib/d3.v2.js"></script>
+	<script src="/lib/jquery-1.8.3.js"></script>
+	<script src="/lib/_.js"></script>
+	<style>
+		
+		body {
+		  font: 10px sans-serif;
+		}
+
+		div.page {
+			clear:both;
+			margin-bottom: 20px;
+		}
+
+		div.page:before,
+		div.page:after {
+			content: " "; /* 1 */
+			display: table; /* 2 */
+		}
+		div.page:after {
+			clear: both;
+		}
+
+		div.subMethod {
+			float:left;
+		}
+
+		div.subMethod:last-child {
+			margin-left: 20px;
+		}
+
+		.axis path,
+		.axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}
+		.axis path.domain {
+			stroke: darkred;
+		}
+		.axis.conversion path {
+			stroke: purple;
+		}
+
+		.x.axis path {
+		  display: none;
+		}
+
+		.y.axis.subs {
+			fill: green;
+		}
+
+		.y.axis {
+			fill: blue;
+		}
+
+		.y.axis.conversion {
+			fill: green;
+		}
+
+		.line {
+		  fill: none;
+		  stroke-width: 1.5px;
+		}
+
+		.line.conversion {
+			stroke: green;
+			stroke-dasharray: 2,1;
+		}
+
+		.line.visits {
+			stroke: blue;
+		}
+
+
+	</style>
+</head>
+<body>
+	<h1>Page Stats</h1>
+	
+	<script src="/growth/dashboard.js"></script>
+	<script src="/pagestats/pagestats.js"></script>
+	<script>
+		var loader = new Dashboard.WebPageStats.DataLoader('/pagestats/bbay_web.csv');
+		 new Dashboard.WebPageStats.PageStatsGraph(loader);
+	</script>
+</body>
+</html>

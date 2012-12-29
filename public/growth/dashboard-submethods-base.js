@@ -9,8 +9,8 @@ var Dashboard;
     (function (Growth) {
         var SubMethodsBaseGraph = (function (_super) {
             __extends(SubMethodsBaseGraph, _super);
-            function SubMethodsBaseGraph(drawLegend, wigglish) {
-                        _super.call(this, "body", drawLegend ? {
+            function SubMethodsBaseGraph(loader, drawLegend, wigglish) {
+                        _super.call(this, loader, "body", drawLegend ? {
             bottom: 130
         } : null, null, drawLegend ? 600 : 300);
                 this.drawLegend = drawLegend;
@@ -87,7 +87,7 @@ var Dashboard;
                         return "translate(0," + i * 20 + ")";
                     });
                     legend.append("rect").attr("x", 0).attr("width", 18).attr("height", 18).style("fill", color);
-                    legend.append("text").attr("x", -10).attr("y", 9).attr("dy", ".35em").style("text-anchor", "end").style("fill", color).text(function (d) {
+                    legend.append("text").attr("transform", "rotate(180) translate(5,-6)").style("text-anchor", "start").style("fill", color).text(function (d) {
                         return d;
                     });
                 }
