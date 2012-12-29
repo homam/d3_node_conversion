@@ -60,6 +60,36 @@ module Dashboard.Growth {
                         return d;
                     });
 
+
+                    var movingAverage = 7;
+                    if (movingAverage > 1) {
+                        var floor = (a: number) => Math.floor(a / movingAverage);
+                        var movingAvgData = _(raw).reduce((a, b, i) => {
+                            var index = floor(i);
+                            var arr = a[index];
+                            if (!arr) {
+                                arr = [];
+                                a[index] = [];
+                            }
+                            arr.push(b);
+
+                            return a;
+                        }, []);
+
+                        var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
+                        var avg = (arr: number[]) => sum(arr) / arr.length;
+                        raw = _(movingAvgData).map(a => {
+                            var res = { day: a[floor(avg([0, a.length]))].day };
+                            for (var p in a[0]) {
+                                if ('number' == typeof (a[0][p])) {
+                                    res[p] = avg(a.map(d => d[p]))
+                                }
+                            }
+                            return res;
+                        });
+                    }
+
+
                     self.loader.resolve(raw);
                 });
             }

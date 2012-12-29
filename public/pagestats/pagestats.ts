@@ -70,8 +70,6 @@ module Dashboard.WebPageStats {
                     return a;
                 }, []);
 
-                //console.log(movingAvgData)
-
                 var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
                 var avg = (arr: number[]) => sum(arr) / arr.length;
                 data = _(movingAvgData).map(a => {

@@ -59,7 +59,6 @@ var Dashboard;
                         arr.push(b);
                         return a;
                     }, []);
-                    //console.log(movingAvgData)
                     var sum = function (arr) {
                         return _(arr).reduce(function (a, b) {
                             return a + b;
