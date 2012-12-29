@@ -24,7 +24,8 @@ app.configure('development', function () {
     'growth', 
     'growth-wiggle', 
     'growth-unsubs', 
-    'growth-percent-unsubs'
+    'growth-percent-unsubs', 
+    'dashboard'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {

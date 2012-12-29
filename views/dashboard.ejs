@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Gowth</title>
+<script src="/lib/d3.v2.js"></script>
+<script src="/lib/jquery-1.8.3.js"></script>
+	<script src="/lib/_.js"></script>
+	<style>
+		
+		body {
+		  font: 10px sans-serif;
+		}
+
+		svg {
+			border: solid 1px black;
+		}
+
+		
+
+		.area.above {
+		  fill: rgb(252,141,89);
+		}
+
+		.area.below {
+		  fill: rgb(145,207,96);
+		}
+
+
+
+		.axis path,
+		.axis line {
+		  fill: none;
+		  stroke: #000;
+		  shape-rendering: crispEdges;
+		}
+		.axis.conversion path {
+			stroke: purple;
+		}
+
+
+		.y.axis.subs {
+			fill: green;
+		}
+
+		.y.axis.conversion {
+			fill: purple;
+		}
+
+		.line {
+		  fill: none;
+		  stroke-width: 1.5px;
+		}
+
+		.line.conversion {
+			 stroke-dasharray: 5,5;
+		}
+
+		.line.subs{ 
+			stroke: green;
+		}
+		.area.subs {
+			fill: green;
+		}
+		.area.subs.inUnsubsArea{
+			fill:rgba(6, 252, 6, 0.37);
+		}
+
+		.line.unsubs{
+			stroke:darkred;
+		}
+		.area.unsubs{
+			fill: darkred;
+		}
+
+	
+	</style>
+</head>
+<body>
+	<h1>Growth</h1>
+	
+	<script src="/growth/dashboard.js"></script>
+	<script src="/growth/dashboard-growth.js"></script>
+	<script src="/growth/dashboard-sub-unsub-dff.js"></script>
+	<script src="/growth/dashboard-wiggle.js"></script>
+	<script src="/growth/dashboard-submethods.js"></script>
+	<script>
+		new Dashboard.Growth.GrowthGraph();
+		new Dashboard.Growth.SubUnsubDiff();
+		new Dashboard.Growth.WiggleGraph();
+		new Dashboard.Growth.SubMethodsGraph();
+	</script>
+</body>
+</html>
