@@ -44,6 +44,45 @@ var Dashboard;
                         _super.call(this, loader, 'body', null, null, null);
             }
             PageStatsGraph.prototype.draw = function (data) {
+                var movingAverage = 7;
+                if(movingAverage > 1) {
+                    var floor = function (a) {
+                        return Math.floor(a / movingAverage);
+                    };
+                    var movingAvgData = _(data).reduce(function (a, b, i) {
+                        var index = floor(i);
+                        var arr = a[index];
+                        if(!arr) {
+                            arr = [];
+                            a[index] = [];
+                        }
+                        arr.push(b);
+                        return a;
+                    }, []);
+                    //console.log(movingAvgData)
+                    var sum = function (arr) {
+                        return _(arr).reduce(function (a, b) {
+                            return a + b;
+                        }, 0);
+                    };
+                    var avg = function (arr) {
+                        return sum(arr) / arr.length;
+                    };
+                    data = _(movingAvgData).map(function (a) {
+                        return {
+                            Visits: avg(a.map(function (d) {
+                                return d.Visits;
+                            })),
+                            Conv: avg(a.map(function (d) {
+                                return d.Conv;
+                            })),
+                            day: a[floor(avg([
+                                0, 
+                                a.length
+                            ]))].day
+                        };
+                    });
+                }
                 var xScale = this.xScale, yScale = this.yScale, height = this.height, g = this.g.datum(data);
                 yScale.domain([
                     d3.min(data, function (d) {

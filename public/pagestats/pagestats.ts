@@ -54,6 +54,35 @@ module Dashboard.WebPageStats {
         }
 
         public draw(data: IData[]) {
+
+            var movingAverage = 7;
+            if (movingAverage > 1) {
+                var floor = (a: number) => Math.floor(a / movingAverage);
+                var movingAvgData = _(data).reduce((a, b, i) => {
+                    var index = floor(i);
+                    var arr = a[index];
+                    if (!arr) {
+                        arr = [];
+                        a[index] = [];
+                    }
+                    arr.push(b);
+
+                    return a;
+                }, []);
+
+                //console.log(movingAvgData)
+
+                var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
+                var avg = (arr: number[]) => sum(arr) / arr.length;
+                data = _(movingAvgData).map(a => {
+                    return {
+                        Visits: avg(a.map(d => d.Visits)),
+                        Conv: avg(a.map(d => d.Conv)),
+                        day: a[floor(avg([0, a.length]))].day
+                    };
+                });
+            }
+
             var xScale = this.xScale,
                 yScale = this.yScale,
                 height = this.height,
