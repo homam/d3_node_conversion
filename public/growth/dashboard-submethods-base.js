@@ -9,15 +9,20 @@ var Dashboard;
     (function (Growth) {
         var SubMethodsBaseGraph = (function (_super) {
             __extends(SubMethodsBaseGraph, _super);
-            function SubMethodsBaseGraph(loader, smoother, drawLegend, wigglish) {
+            function SubMethodsBaseGraph(loader, smoother, drawLegend, wigglish, methodNames, colorRange, width, height, yAxisLabel) {
+                if (typeof height === "undefined") { height = 600; }
+                if (typeof yAxisLabel === "undefined") { yAxisLabel = 'Subs'; }
                         _super.call(this, loader, smoother, "body", drawLegend ? {
             bottom: 130
-        } : null, null, drawLegend ? 600 : 300);
+        } : null, null, height);
                 this.drawLegend = drawLegend;
                 this.wigglish = wigglish;
+                this.methodNames = methodNames;
+                this.colorRange = colorRange;
+                this.yAxisLabel = yAxisLabel;
             }
             SubMethodsBaseGraph.prototype.draw = function (data) {
-                var xScale = this.xScale, yScale = this.yScale, height = this.height, subMethodNames = Dashboard.Growth.subMethodNames, g = this.g;
+                var xScale = this.xScale, yScale = this.yScale, height = this.height, g = this.g;
                 this.svg.attr('class', (this.svg.attr('class') || '') + ' subMethods ' + (this.wigglish ? 'wigglish' : ''));
                 yScale.domain([
                     0, 
@@ -42,7 +47,7 @@ var Dashboard;
                         return d.y;
                     }).offset("wiggle");
                 }
-                subMethodNames = _.chain(subMethodNames).map(function (s) {
+                var methodNames = _.chain(this.methodNames).map(function (s) {
                     return ({
                         name: s,
                         total: _(data.map(function (r) {
@@ -58,7 +63,10 @@ var Dashboard;
                 }).map(function (s) {
                     return s.name;
                 }).value();
-                var color = (d3.scale).category20().domain(subMethodNames);
+                var color = (d3.scale).category20().domain(methodNames);
+                if(!!this.colorRange) {
+                    color.range(this.colorRange);
+                }
                 var subscribers = stack(color.domain().map(function (name) {
                     return ({
                         name: name,
@@ -93,7 +101,7 @@ var Dashboard;
                 }
                 this.drawXAxis();
                 if(!this.wigglish) {
-                    this.drawYAxis('Subs');
+                    this.drawYAxis(this.yAxisLabel);
                 }
             };
             return SubMethodsBaseGraph;

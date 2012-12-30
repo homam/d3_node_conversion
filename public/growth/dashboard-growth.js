@@ -39,6 +39,33 @@ var Dashboard;
                 g.append("path").attr("class", "subs line").attr("d", activeSubsLine);
                 g.append("path").attr("class", "subs area").attr("d", activeSubsArea);
                 this.drawXAxis().drawYAxis('Active Subscribers');
+                var self = this;
+                (function () {
+                    var ratio = (function (d) {
+                        return d.ActiveSubs / data[0].ActiveSubs;
+                    });
+                    var yScaleRatio = d3.scale.linear().range([
+                        height, 
+                        0
+                    ]).domain([
+                        d3.min(data, function (d) {
+                            return ratio(d);
+                        }), 
+                        d3.max(data, function (d) {
+                            return ratio(d);
+                        })
+                    ]);
+                    var ratioLine = d3.svg.line().interpolate("basis").x(function (d) {
+                        return xScale(d.day);
+                    }).y(function (d) {
+                        return yScaleRatio(ratio(d));
+                    });
+                    g.append("path").attr("class", "subs line").attr("d", ratioLine);
+                    var ratioYAxis = d3.svg.axis().scale(yScaleRatio).orient("right");
+                    var axis = self.drawCustomYAxis(g, ratioYAxis, false);
+                    axis.group.attr("transform", "translate(" + self.width + ",0)").select(".domain").attr("style", "stroke:none");
+                    axis.label.text("Change").attr("transform", "translate(-4,42) rotate(-90)");
+                })();
             };
             return GrowthGraph;
         })(Growth.Graph);

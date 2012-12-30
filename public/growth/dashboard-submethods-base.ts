@@ -1,15 +1,16 @@
 ﻿    /// <reference path="dashboard.ts" />
 module Dashboard.Growth {
     export class SubMethodsBaseGraph extends Graph {
-        constructor(loader:DataLoader,smoother:IDataSmoother, private drawLegend:bool, private wigglish:bool) {
-            super(loader,smoother,"body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
+        constructor(loader:DataLoader,smoother:IDataSmoother, private drawLegend:bool, 
+            private wigglish:bool, private methodNames:string[], private colorRange?:string[],
+            width?:number,height:number=600,private yAxisLabel:string = 'Subs') {
+            super(loader,smoother,"body", drawLegend? {  bottom: 130 } : null, null, height)
         }
 
         public draw(data: IData[]) {
             var xScale = this.xScale,
                 yScale = this.yScale,
                 height = this.height,
-                subMethodNames = Dashboard.Growth.subMethodNames,
                 g = this.g;
 
             this.svg.attr('class', (this.svg.attr('class')||'') + ' subMethods ' + (this.wigglish ? 'wigglish' : ''));
@@ -26,7 +27,7 @@ module Dashboard.Growth {
             if(this.wigglish)
                 stack = (<any>stack).x(d => d.day).y(d => d.y).offset("wiggle");
 
-            subMethodNames = _.chain(subMethodNames).map(s => ({
+            var methodNames = _.chain(this.methodNames).map(s => ({
                 name: s, 
                 total: _( data.map(r => r[s])).reduce((a,b) =>a+b,0) }))
             .filter(s => s.total>0)
@@ -34,7 +35,10 @@ module Dashboard.Growth {
             .map(s => s.name).value();
 
             var color = (<any>d3.scale).category20()
-                .domain(subMethodNames);
+                .domain(methodNames);
+
+            if(!!this.colorRange)
+                color.range(this.colorRange);
 
             var subscribers = stack(color.domain().map(name => (
                 {   name:name,
@@ -75,7 +79,7 @@ module Dashboard.Growth {
             }
             this.drawXAxis();
             if(!this.wigglish)
-                this.drawYAxis('Subs');
+                this.drawYAxis(this.yAxisLabel);
         }
     }
 }

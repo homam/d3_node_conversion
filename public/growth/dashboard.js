@@ -29,7 +29,16 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
             'Android', 
             'GooglePlay'
         ];
+        var _unsubMethodNames = [
+            'Wap,Pin', 
+            'SMS', 
+            'Billing Rule', 
+            'Cust. Care', 
+            'Op. Admin', 
+            'IVR'
+        ];
         Growth.subMethodNames = _subMethodNames;
+        Growth.unsubMethodNames = _unsubMethodNames;
         var DataLoader = (function () {
             function DataLoader(url) {
                 this.url = url;
@@ -45,7 +54,11 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                             d.Subs = parseInt(d.Subs);
                             d.ActiveSubs = +d['Active Subs'];
                             d.Unsubs = +d['Un Subs'];
+                            d.Growth = +d.Growth;
                             _subMethodNames.forEach(function (sm) {
+                                d[sm] = +d[sm];
+                            });
+                            _unsubMethodNames.forEach(function (sm) {
                                 d[sm] = +d[sm];
                             });
                             return d;

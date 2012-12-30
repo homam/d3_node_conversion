@@ -29,9 +29,11 @@ module Dashboard.Growth {
 
     
     var _subMethodNames = ['Direct Wap', 'WEB Pin', 'Direct SMS', 'Web SMS', 'Wap SMS', 'Click Tag',
-    'Link Click', 'Java App', 'Link Pin', 'Wap Pin', 'Android', 'GooglePlay'];
+        'Link Click', 'Java App', 'Link Pin', 'Wap Pin', 'Android', 'GooglePlay'];
+    var _unsubMethodNames = ['Wap,Pin', 'SMS', 'Billing Rule', 'Cust. Care', 'Op. Admin', 'IVR'];
 
     export var subMethodNames = _subMethodNames;
+    export var unsubMethodNames = _unsubMethodNames;
 
     export interface IDataLoader {
         load(): JQueryPromise;
@@ -54,7 +56,11 @@ module Dashboard.Growth {
                         d.Subs = parseInt(d.Subs);
                         d.ActiveSubs = +d['Active Subs'];
                         d.Unsubs = +d['Un Subs'];
+                        d.Growth = +d.Growth;
                         _subMethodNames.forEach(sm => {
+                            d[sm] = +d[sm];
+                        });
+                        _unsubMethodNames.forEach(sm => {
                             d[sm] = +d[sm];
                         });
                         return d;

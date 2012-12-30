@@ -43,10 +43,7 @@
 			stroke: rgba(87, 87, 87, 0.1);
 			shape-rendering: crispEdges;
 		}
-		.y.axis .major line {
-		  stroke: #000;
-		  stroke-opacity: 1;
-		}
+		
 
 		.axis.conversion path {
 			stroke: purple;
@@ -95,8 +92,13 @@
 		var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
 		new Dashboard.Growth.GrowthGraph(loader,smoother);
 		new Dashboard.Growth.SubUnsubDiff(loader,smoother);
-		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,true,true);
-		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,false,false);
+		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,true,true,Dashboard.Growth.subMethodNames);
+		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,false,false,Dashboard.Growth.subMethodNames,null,null,400);
+
+		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,true,false,Dashboard.Growth.unsubMethodNames,
+			['rgb(237,132,77)', 'rgb(240,160,85)', 'rgb(243,186,94)', 'rgb(246,211,103)', 'rgb(248,234,112)', 'rgb(246,251,121)']
+		,null,400, 'Unsbs');
+
 	</script>
 </body>
 </html>

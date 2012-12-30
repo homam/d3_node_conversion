@@ -30,6 +30,31 @@ module Dashboard.Growth {
                 .attr("d",activeSubsArea);
 
             this.drawXAxis().drawYAxis('Active Subscribers');
+
+
+            var self = this;
+             (function () {
+                var ratio = (d => d.ActiveSubs / data[0].ActiveSubs);
+
+                var yScaleRatio = d3.scale.linear().range([height, 0])
+                    .domain([d3.min(data, d => ratio(d)), d3.max(data, d => ratio(d))]);
+
+                var ratioLine = d3.svg.line().interpolate("basis")
+                    .x(d => xScale(d.day))
+                    .y(d => yScaleRatio(ratio(d)));
+
+
+                g.append("path").attr("class", "subs line")
+                    .attr("d", ratioLine);
+
+
+                var ratioYAxis = d3.svg.axis().scale(yScaleRatio).orient("right");
+                var axis = self.drawCustomYAxis(g, ratioYAxis, false);
+                axis.group
+                    .attr("transform", "translate(" + self.width + ",0)")
+                    .select(".domain").attr("style","stroke:none");
+                axis.label.text("Change").attr("transform", "translate(-4,42) rotate(-90)");
+            })();
         }
     }
 }
