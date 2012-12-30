@@ -92,10 +92,11 @@
 	<script src="/growth/dashboard-submethods-base.js"></script>
 	<script>
 		var loader = new Dashboard.Growth.DataLoader('/growth/du_bbay.csv');
-		new Dashboard.Growth.GrowthGraph(loader);
-		new Dashboard.Growth.SubUnsubDiff(loader);
-		new Dashboard.Growth.SubMethodsBaseGraph(loader,true,true);
-		new Dashboard.Growth.SubMethodsBaseGraph(loader,false,false);
+		var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
+		new Dashboard.Growth.GrowthGraph(loader,smoother);
+		new Dashboard.Growth.SubUnsubDiff(loader,smoother);
+		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,true,true);
+		new Dashboard.Growth.SubMethodsBaseGraph(loader,smoother,false,false);
 	</script>
 </body>
 </html>

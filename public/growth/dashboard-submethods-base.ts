@@ -1,8 +1,8 @@
 ﻿    /// <reference path="dashboard.ts" />
 module Dashboard.Growth {
     export class SubMethodsBaseGraph extends Graph {
-        constructor(loader:DataLoader,private drawLegend:bool, private wigglish:bool) {
-            super(loader,"body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
+        constructor(loader:DataLoader,smoother:IDataSmoother, private drawLegend:bool, private wigglish:bool) {
+            super(loader,smoother,"body", drawLegend? {  bottom: 130 } : null, null, drawLegend ? 600 : 300)
         }
 
         public draw(data: IData[]) {

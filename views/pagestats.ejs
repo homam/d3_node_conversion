@@ -86,7 +86,8 @@
 	<script src="/pagestats/pagestats.js"></script>
 	<script>
 		var loader = new Dashboard.WebPageStats.DataLoader('/pagestats/bbay_web.csv');
-		 new Dashboard.WebPageStats.PageStatsGraph(loader);
+		var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
+		 new Dashboard.WebPageStats.PageStatsGraph(loader, smoother);
 	</script>
 </body>
 </html>

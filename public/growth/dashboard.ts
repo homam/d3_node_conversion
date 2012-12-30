@@ -60,36 +60,6 @@ module Dashboard.Growth {
                         return d;
                     });
 
-
-                    var movingAverage = 7;
-                    if (movingAverage > 1) {
-                        var floor = (a: number) => Math.floor(a / movingAverage);
-                        var movingAvgData = _(raw).reduce((a, b, i) => {
-                            var index = floor(i);
-                            var arr = a[index];
-                            if (!arr) {
-                                arr = [];
-                                a[index] = [];
-                            }
-                            arr.push(b);
-
-                            return a;
-                        }, []);
-
-                        var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
-                        var avg = (arr: number[]) => sum(arr) / arr.length;
-                        raw = _(movingAvgData).map(a => {
-                            var res = { day: a[floor(avg([0, a.length]))].day };
-                            for (var p in a[0]) {
-                                if ('number' == typeof (a[0][p])) {
-                                    res[p] = avg(a.map(d => d[p]))
-                                }
-                            }
-                            return res;
-                        });
-                    }
-
-
                     self.loader.resolve(raw);
                 });
             }
@@ -98,9 +68,37 @@ module Dashboard.Growth {
         }
     }
    
+    export interface IDataSmoother {
+        smooth(data: any[]): any[];
+    }
+
+    export class MovingAverageDataSmoother implements IDataSmoother {
+        constructor(private setSize: number = 7) {
+
+        }
+
+        smooth(raw: any[]) {
+            var data = raw.map(r => _.clone(r));
+            var setSize = this.setSize;
+            var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
+            var avg = (arr: number[]) => sum(arr) / arr.length;
+            var smoothed = data.map((d, i) => {
+                var nextSet = data.slice(i, i + setSize);
+                for (var p in d) {
+                    if ('number' == typeof (d[p])) {
+                        d[p] = avg(nextSet.map(i => i[p]));
+                    }
+                }
+                return d;
+            });
+            return smoothed;
+        }
+    }
+
 
     export class Graph {
-        constructor(loader:IDataLoader, selector, margin?:IMargin, width?:number, height?:number) {
+        constructor(loader:IDataLoader, smoother:IDataSmoother,
+             selector, margin?:IMargin, width?:number, height?:number) {
             margin = <IMargin> $.extend(_.clone(_margin), margin || {});
             width = adjustWidthByMargin(width || _width, margin);
             height = adjustHeightByMargin(height || _height, margin);
@@ -126,6 +124,8 @@ module Dashboard.Growth {
 
             var self = this;
             loader.load().done((data: IData[]) => {
+                if (!!smoother)
+                     data = smoother.smooth(data);
                 self.xScale.domain(d3.extent(data, d => d.day));
                 self.draw(data);
             });

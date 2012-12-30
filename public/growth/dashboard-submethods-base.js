@@ -9,8 +9,8 @@ var Dashboard;
     (function (Growth) {
         var SubMethodsBaseGraph = (function (_super) {
             __extends(SubMethodsBaseGraph, _super);
-            function SubMethodsBaseGraph(loader, drawLegend, wigglish) {
-                        _super.call(this, loader, "body", drawLegend ? {
+            function SubMethodsBaseGraph(loader, smoother, drawLegend, wigglish) {
+                        _super.call(this, loader, smoother, "body", drawLegend ? {
             bottom: 130
         } : null, null, drawLegend ? 600 : 300);
                 this.drawLegend = drawLegend;

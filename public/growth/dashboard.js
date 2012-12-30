@@ -50,46 +50,6 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                             });
                             return d;
                         });
-                        var movingAverage = 7;
-                        if(movingAverage > 1) {
-                            var floor = function (a) {
-                                return Math.floor(a / movingAverage);
-                            };
-                            var movingAvgData = _(raw).reduce(function (a, b, i) {
-                                var index = floor(i);
-                                var arr = a[index];
-                                if(!arr) {
-                                    arr = [];
-                                    a[index] = [];
-                                }
-                                arr.push(b);
-                                return a;
-                            }, []);
-                            var sum = function (arr) {
-                                return _(arr).reduce(function (a, b) {
-                                    return a + b;
-                                }, 0);
-                            };
-                            var avg = function (arr) {
-                                return sum(arr) / arr.length;
-                            };
-                            raw = _(movingAvgData).map(function (a) {
-                                var res = {
-                                    day: a[floor(avg([
-                                        0, 
-                                        a.length
-                                    ]))].day
-                                };
-                                for(var p in a[0]) {
-                                    if('number' == typeof (a[0][p])) {
-                                        res[p] = avg(a.map(function (d) {
-                                            return d[p];
-                                        }));
-                                    }
-                                }
-                                return res;
-                            });
-                        }
                         self.loader.resolve(raw);
                     });
                 }
@@ -98,8 +58,42 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
             return DataLoader;
         })();
         Growth.DataLoader = DataLoader;        
+        var MovingAverageDataSmoother = (function () {
+            function MovingAverageDataSmoother(setSize) {
+                if (typeof setSize === "undefined") { setSize = 7; }
+                this.setSize = setSize;
+            }
+            MovingAverageDataSmoother.prototype.smooth = function (raw) {
+                var data = raw.map(function (r) {
+                    return _.clone(r);
+                });
+                var setSize = this.setSize;
+                var sum = function (arr) {
+                    return _(arr).reduce(function (a, b) {
+                        return a + b;
+                    }, 0);
+                };
+                var avg = function (arr) {
+                    return sum(arr) / arr.length;
+                };
+                var smoothed = data.map(function (d, i) {
+                    var nextSet = data.slice(i, i + setSize);
+                    for(var p in d) {
+                        if('number' == typeof (d[p])) {
+                            d[p] = avg(nextSet.map(function (i) {
+                                return i[p];
+                            }));
+                        }
+                    }
+                    return d;
+                });
+                return smoothed;
+            };
+            return MovingAverageDataSmoother;
+        })();
+        Growth.MovingAverageDataSmoother = MovingAverageDataSmoother;        
         var Graph = (function () {
-            function Graph(loader, selector, margin, width, height) {
+            function Graph(loader, smoother, selector, margin, width, height) {
                 margin = $.extend(_.clone(_margin), margin || {
                 });
                 width = adjustWidthByMargin(width || _width, margin);
@@ -123,6 +117,9 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                 this.yAxis = d3.svg.axis().scale(this.yScale).orient("left");
                 var self = this;
                 loader.load().done(function (data) {
+                    if(!!smoother) {
+                        data = smoother.smooth(data);
+                    }
                     self.xScale.domain(d3.extent(data, function (d) {
                         return d.day;
                     }));
