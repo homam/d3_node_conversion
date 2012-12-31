@@ -1,6 +1,3 @@
-/// <reference path="../lib/jquery-1.8.d.ts" />
-/// <reference path="../lib/d3types.ts" />
-/// <reference path="../lib/underscore.browser.d.ts" />
 var Dashboard;
 (function (Dashboard) {
     (function (Growth) {
@@ -48,7 +45,7 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                     this.loader = $.Deferred();
                     var self = this;
                     d3.csv(self.url, function (raw) {
-                        var parseDate = d3.time.format("%m/%d/%Y").parse;
+                        var parseDate = d3.time.format("%d/%m/%Y").parse;
                         raw.forEach(function (d) {
                             d.day = parseDate(d.Day);
                             d.Subs = parseInt(d.Subs);

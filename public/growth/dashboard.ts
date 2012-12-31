@@ -50,7 +50,7 @@ module Dashboard.Growth {
                 this.loader = $.Deferred();
                 var self = this;
                 d3.csv(self.url, (raw: any[]) => {
-                    var parseDate = d3.time.format("%m/%d/%Y").parse;
+                    var parseDate = d3.time.format("%d/%m/%Y").parse;
                     raw.forEach(d => {
                         d.day = parseDate(d.Day);
                         d.Subs = parseInt(d.Subs);
