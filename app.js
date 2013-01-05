@@ -27,7 +27,8 @@ app.configure('development', function () {
     'growth-percent-unsubs', 
     'dashboard', 
     'transition', 
-    'pagestats'
+    'pagestats', 
+    'devices'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {
