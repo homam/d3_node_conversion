@@ -89,14 +89,15 @@ var Tree = (function () {
         Tree.sortChildren(root);
         this.root = root;
     }
-    Tree.prototype.renderTree = function (element, subMethods) {
+    Tree.prototype.renderTree = function (element, subMethods, minVisits) {
+        if (typeof minVisits === "undefined") { minVisits = 0; }
         var root = $("<ul></ul>");
         var header = $("<li class='header'></li>").append("<span class='title'>ID</span>").append("<span class='visits'>Visits</span>").append("<span class='subscribers'>Subscribers</span>").append("<span class='conversion'>Conversion</span>");
         subMethods.forEach(function (sm) {
             header.append($("<span class='subMethod' />").text(sm));
         });
         root.append(header);
-        root.append(Tree.renderTreeBranch(this.root, subMethods));
+        root.append(Tree.renderTreeBranch(this.root, subMethods, minVisits));
         element.append(root);
     };
     Tree.sortChildren = function sortChildren(root) {
@@ -108,16 +109,21 @@ var Tree = (function () {
         });
         return root;
     }
-    Tree.renderTreeBranch = function renderTreeBranch(root, subMethods) {
+    Tree.renderTreeBranch = function renderTreeBranch(root, subMethods, minVisits) {
+        if(root.visitsIncludingChildren() < minVisits) {
+            return '';
+        }
         var li = $("<li></li>").append($("<span class='title'>").text(root.id)).append($("<span class='visits'>").text(root.visitsIncludingChildren())).append($("<span class='subscribers'>").text(root.subscribersIncludingChildren())).append($("<span class='conversion'>").text((Math.round(root.subscribersIncludingChildren() / root.visitsIncludingChildren() * 1000) / 10) + "%"));
         subMethods.forEach(function (sm) {
-            li.append($("<span class='subMethod visits'>").addClass("subMethod-" + sm).text(root.visitsIncludingChildrenForAMethod(sm)));
-            li.append($("<span class='subMethod subscribers'>").addClass("subMethod-" + sm).text(root.subscribersIncludingChildrenForAMethod(sm)));
+            var visits = root.visitsIncludingChildrenForAMethod(sm), subs = root.subscribersIncludingChildrenForAMethod(sm);
+            li.append($("<span class='subMethod visits'>").addClass("subMethod-" + sm).text(visits));
+            li.append($("<span class='subMethod subscribers'>").addClass("subMethod-" + sm).text(subs));
+            li.append($("<span class='subMethod conversion'>").addClass("subMethod-" + sm).text(((visits == 0) && (subs == 0)) ? '-' : (Math.round(subs / visits * 1000) / 10) + '%'));
         });
         if(root.children.length > 0) {
             var ul = $("<ul></ul>");
             root.children.forEach(function (c) {
-                ul.append(Tree.renderTreeBranch(c, subMethods));
+                ul.append(Tree.renderTreeBranch(c, subMethods, minVisits));
             });
             li = li.append(ul);
         }
@@ -131,15 +137,17 @@ new Loader().load().done(function (obj) {
         return sm.visits > 500;
     }).map(function (sm) {
         return sm.name;
-    });
-    new Tree(nodes).renderTree($("body"), subMethods);
+    });// only sub methods with more than 500 visits
+    
+    new Tree(nodes).renderTree($("body"), subMethods, 200)// only nodes with more than 200 visitis
+    ;
     $("ul:first>li>ul>li").each(function () {
         var e = $(this);
-        e.find("ul").toggle();
+        e.find(">ul").toggle();
         e.toggleClass('folded');
     });
     $("li").mousedown(function (ev) {
-        var ul = $(this).find("ul");
+        var ul = $(this).find(">ul");
         ul.toggle();
         $(this).toggleClass('folded');
         return false;
