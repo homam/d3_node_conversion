@@ -125,4 +125,17 @@ new Loader().load().done((obj) => {
     var nodes: DeviceNode[] = obj.nodes;
     var subMethods: string[] = obj.subMethods.filter(sm=>sm.visits>500).map(sm=>sm.name);
     new Tree(nodes).renderTree($("body"),subMethods);
+
+    $("ul:first>li>ul>li").each(function () {
+        var e = $(this);
+        e.find("ul").toggle();
+        e.toggleClass('folded');
+    });
+
+    $("li").mousedown(function (ev) {
+        var ul = $(this).find("ul");
+        ul.toggle();
+        $(this).toggleClass('folded');
+        return false;
+    });
 });
