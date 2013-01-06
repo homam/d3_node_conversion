@@ -27,7 +27,7 @@ app.configure('development', () => {
 ['costrev','wapp155','linkpin', 'growth', 'growth-wiggle',
      'growth-unsubs','growth-percent-unsubs', 'dashboard',
      'transition', 'pagestats',
-         'devices'].forEach(v => {
+         'devices', 'devices-iraq'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 
