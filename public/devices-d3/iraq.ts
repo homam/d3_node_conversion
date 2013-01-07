@@ -107,12 +107,17 @@ class Tree{
         var root: any = this.root;
         root.x0 = 0;
         root.y0 = 0;
+        
+
+        var nodes:any[] = null;
+        window['root'] = root;
+
         update(root);
 
         function update(source) {
 
             // Compute the flattened node list. TODO use d3.layout.hierarchy.
-            var nodes = tree.nodes(root);
+            nodes = tree.nodes(root);
 
             // Compute the "layout".
             nodes.forEach((n, i) => n.x = i * barHeight);
@@ -133,13 +138,15 @@ class Tree{
                 .attr("width", (d:DeviceNode) => 200*(d.visitsIncludingChildren()/563138))
                 .attr("class", "visits");
             g.append("svg:rect")
+                .attr('class','name')
                 .attr("height", barHeight)
                 .attr("width", "200")
-                .style("fill", color)
+                //below anywa: .style("fill", color)
                 .on("dblclick", dblclick)
                 .on("click", click);
 
             nodeEnter.append("svg:text")
+                .attr('class','name')
                 .attr("dy", 3.5)
                 .attr("dx", 5.5)
                 .text((d:DeviceNode)=>d.id + " " + d.visitsIncludingChildren());
@@ -147,15 +154,15 @@ class Tree{
             // Transition nodes to their new position.
             nodeEnter.transition()
                 .duration(duration)
-                // not needed, will be called anyway below: .attr("transform", d=> "translate(" + d.y + "," + d.x + ")")
+                .attr("transform", d=> "translate(" + d.y + "," + d.x + ")")
                 .style("opacity", 1);
 
             node.transition()
                 .duration(duration)
                 .attr("transform", d=>"translate(" + d.y + "," + d.x + ")")
-                .style("opacity", 1)
-                .select("rect")
-                //.style("fill", color);
+                .style("opacity", 1);
+
+            node.selectAll("rect.name").style("stroke", color);
 
             // Transition exiting nodes to the parent's new position.
             node.exit().transition()
@@ -215,14 +222,14 @@ class Tree{
         }
 
         function color(d) {
-            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+            return d.children == null ? "red" : d.children.length>0 ? "#550a3a" : "#c6dbef";
         }
 
         function click(d: any) {
             var dn = <DeviceNode>d;
             var self = <Node>this;
             var children = self.parentNode.childNodes;
-            console.log(d);
+         //   console.log(d);
         }
 
         window['flatten'] = function () {
@@ -230,21 +237,21 @@ class Tree{
                 .attr("transform", d=>"translate(" + 0 + "," + d.x + ")")
         }
 
-        var currentDepth = 20;
+        
         window['deep'] = function (depth) {
-            console.log(depth, currentDepth);
-            if (depth < currentDepth) {
-                for (var p = 20; p >= depth; p--) {
-                    var gs = vis.selectAll("g.node.depth-" + p);
-                    gs.each(d => dblclick(d));
+            nodes.filter(n => n.depth < depth).forEach(d => {
+                if (d._children) {
+                    d.children = d._children;
+                    d._children = null;
                 }
-            } else if(depth>currentDepth) {
-                for (var p = currentDepth; p <depth; p++) {
-                    var gs = vis.selectAll("g.node.depth-" + p);
-                    gs.each(d => dblclick(d));
+            });
+            nodes.filter(n => n.depth >= depth).forEach(d => {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
                 }
-            }
-            currentDepth = depth;
+            });
+            update(root);
         };
   
 

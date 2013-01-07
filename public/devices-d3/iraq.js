@@ -120,10 +120,12 @@ var Tree = (function () {
         var root = this.root;
         root.x0 = 0;
         root.y0 = 0;
+        var nodes = null;
+        window['root'] = root;
         update(root);
         function update(source) {
             // Compute the flattened node list. TODO use d3.layout.hierarchy.
-            var nodes = tree.nodes(root);
+            nodes = tree.nodes(root);
             // Compute the "layout".
             nodes.forEach(function (n, i) {
                 return n.x = i * barHeight;
@@ -142,17 +144,19 @@ var Tree = (function () {
             g.append("rect").attr("height", barHeight).attr("width", function (d) {
                 return 200 * (d.visitsIncludingChildren() / 563138);
             }).attr("class", "visits");
-            g.append("svg:rect").attr("height", barHeight).attr("width", "200").style("fill", color).on("dblclick", dblclick).on("click", click);
-            nodeEnter.append("svg:text").attr("dy", 3.5).attr("dx", 5.5).text(function (d) {
+            g.append("svg:rect").attr('class', 'name').attr("height", barHeight).attr("width", "200").on(//below anywa: .style("fill", color)
+            "dblclick", dblclick).on("click", click);
+            nodeEnter.append("svg:text").attr('class', 'name').attr("dy", 3.5).attr("dx", 5.5).text(function (d) {
                 return d.id + " " + d.visitsIncludingChildren();
             });
             // Transition nodes to their new position.
-            nodeEnter.transition().duration(duration).style(// not needed, will be called anyway below: .attr("transform", d=> "translate(" + d.y + "," + d.x + ")")
-            "opacity", 1);
+            nodeEnter.transition().duration(duration).attr("transform", function (d) {
+                return "translate(" + d.y + "," + d.x + ")";
+            }).style("opacity", 1);
             node.transition().duration(duration).attr("transform", function (d) {
                 return "translate(" + d.y + "," + d.x + ")";
-            }).style("opacity", 1).select("rect");
-            //.style("fill", color);
+            }).style("opacity", 1);
+            node.selectAll("rect.name").style("stroke", color);
             // Transition exiting nodes to the parent's new position.
             node.exit().transition().duration(duration).attr("transform", function (d) {
                 return "translate(" + source.y + "," + source.x + ")";
@@ -205,40 +209,37 @@ var Tree = (function () {
             update(d);
         }
         function color(d) {
-            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+            return d.children == null ? "red" : d.children.length > 0 ? "#550a3a" : "#c6dbef";
         }
         function click(d) {
             var dn = d;
             var self = this;
             var children = self.parentNode.childNodes;
-            console.log(d);
-        }
+            //   console.log(d);
+                    }
         window['flatten'] = function () {
             vis.selectAll("g.node").attr("transform", function (d) {
                 return "translate(" + 0 + "," + d.x + ")";
             });
         };
-        var currentDepth = 20;
         window['deep'] = function (depth) {
-            console.log(depth, currentDepth);
-            if(depth < currentDepth) {
-                for(var p = 20; p >= depth; p--) {
-                    var gs = vis.selectAll("g.node.depth-" + p);
-                    gs.each(function (d) {
-                        return dblclick(d);
-                    });
+            nodes.filter(function (n) {
+                return n.depth < depth;
+            }).forEach(function (d) {
+                if(d._children) {
+                    d.children = d._children;
+                    d._children = null;
                 }
-            } else {
-                if(depth > currentDepth) {
-                    for(var p = currentDepth; p < depth; p++) {
-                        var gs = vis.selectAll("g.node.depth-" + p);
-                        gs.each(function (d) {
-                            return dblclick(d);
-                        });
-                    }
+            });
+            nodes.filter(function (n) {
+                return n.depth >= depth;
+            }).forEach(function (d) {
+                if(d.children) {
+                    d._children = d.children;
+                    d.children = null;
                 }
-            }
-            currentDepth = depth;
+            });
+            update(root);
         };
     };
     Tree.sortChildren = function sortChildren(root) {
