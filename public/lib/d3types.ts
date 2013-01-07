@@ -132,7 +132,11 @@ interface ID3Selection extends ID3Selectors {
     };
 
     each: {
-        (a: string, b: any): ID3Selection;
+        (callback:(a:any)=>void): ID3Selection;
+    };
+
+    on: {
+        (evName: string, func: any): ID3Selection;
     };
 
     call(callback: (selection: ID3Selection) => void ): ID3Selection;

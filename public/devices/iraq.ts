@@ -73,13 +73,14 @@ class Tree{
 
     public renderTree(element:JQuery, subMethods:string[], minVisits:number = 0) {
         var root = $("<ul></ul>");
-        var header = $("<li class='header'></li>")
+        var header = $("<li class='header'><div></div></li>");
+        header.find("div")
                 .append("<span class='title'>ID</span>")
                 .append("<span class='visits'>Visits</span>")
                 .append("<span class='subscribers'>Subscribers</span>")
                 .append("<span class='conversion'>Conversion</span>");
         subMethods.forEach(sm => {
-            header.append($("<span class='subMethod' />").text(sm))
+            header.find("div").append($("<span class='subMethod' />").text(sm))
         });
             root.append(header); 
             root.append( Tree.renderTreeBranch(this.root,subMethods,minVisits));
@@ -94,17 +95,18 @@ class Tree{
 
     static renderTreeBranch(root: DeviceNode, subMethods:string[], minVisits:number):any {
         if (root.visitsIncludingChildren() < minVisits) return '';
-        var li = $("<li></li>")
-            .append($("<span class='title'>").text( root.id))
+        var li = $("<li><div></div></li>");
+        var div = li.find("div");
+        div.append($("<span class='title'>").text( root.id))
             .append($("<span class='visits'>").text( root.visitsIncludingChildren()))
             .append($("<span class='subscribers'>").text( root.subscribersIncludingChildren()))
             .append($("<span class='conversion'>").text( (Math.round( root.subscribersIncludingChildren() / root.visitsIncludingChildren()*1000)/10) + "%"));
         subMethods.forEach(sm => {
             var visits = root.visitsIncludingChildrenForAMethod(sm),
                 subs =root.subscribersIncludingChildrenForAMethod(sm);
-            li.append($("<span class='subMethod visits'>").addClass("subMethod-" + sm).text(visits));
-            li.append($("<span class='subMethod subscribers'>").addClass("subMethod-" + sm).text(subs));
-            li.append($("<span class='subMethod conversion'>").addClass("subMethod-" + sm).text(
+            div.append($("<span class='subMethod visits'>").addClass("subMethod-" + sm).text(visits));
+            div.append($("<span class='subMethod subscribers'>").addClass("subMethod-" + sm).text(subs));
+            div.append($("<span class='subMethod conversion'>").addClass("subMethod-" + sm).text(
                 ((visits == 0) && (subs==0)) ? '-' :
                     (Math.round( subs / visits * 1000)/10) + '%'
             ));

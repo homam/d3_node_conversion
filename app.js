@@ -29,7 +29,8 @@ app.configure('development', function () {
     'transition', 
     'pagestats', 
     'devices', 
-    'devices-iraq'
+    'devices-iraq', 
+    'devices-d3'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {
