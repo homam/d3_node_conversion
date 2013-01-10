@@ -118,10 +118,9 @@ var Tree = (function () {
         });
         var vis = d3.select("body").append("svg:svg").attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(20,30)");
         var root = this.root;
-        root.x0 = 0;
-        root.y0 = 0;
         var nodes = null;
         window['root'] = root;
+        var flatten = false;
         update(root);
         function update(source) {
             // Compute the flattened node list. TODO use d3.layout.hierarchy.
@@ -137,7 +136,7 @@ var Tree = (function () {
             var nodeEnter = node.enter().append("svg:g").attr("class", function (d) {
                 return "node depth-" + d.depth;
             }).attr("transform", function (d) {
-                return "translate(" + source.y0 + "," + source.x0 + ")";
+                return "translate(" + source.y + "," + source.x + ")";
             }).style("opacity", 0.000001);
             // Enter any new nodes at the parent's previous position.
             var g = nodeEnter.append("g").attr("transform", "translate(0," + (-barHeight / 2) + ")");
@@ -151,16 +150,17 @@ var Tree = (function () {
             });
             // Transition nodes to their new position.
             nodeEnter.transition().duration(duration).attr("transform", function (d) {
-                return "translate(" + d.y + "," + d.x + ")";
+                return "translate(" + (flatten ? 0 : d.y) + "," + d.x + ")";
             }).style("opacity", 1);
             node.transition().duration(duration).attr("transform", function (d) {
-                return "translate(" + d.y + "," + d.x + ")";
+                return "translate(" + (flatten ? 0 : d.y) + "," + d.x + ")";
             }).style("opacity", 1);
             node.selectAll("rect.name").style("stroke", color);
             // Transition exiting nodes to the parent's new position.
             node.exit().transition().duration(duration).attr("transform", function (d) {
                 return "translate(" + source.y + "," + source.x + ")";
             }).style("opacity", 0.000001).remove();
+            //#region Links
             (function () {
                 // Update the links…
                 var link = vis.selectAll("path.link").data(tree.links(nodes), function (d) {
@@ -169,8 +169,8 @@ var Tree = (function () {
                 // Enter any new links at the parent's previous position.
                 link.enter().insert("svg:path", "g").attr("class", "link").attr("d", function (d) {
                     var o = {
-                        x: source.x0,
-                        y: source.y0
+                        x: source.x,
+                        y: source.y
                     };
                     return diagonal({
                         source: o,
@@ -191,12 +191,8 @@ var Tree = (function () {
                     });
                 }).remove();
             })//();
-                        // Stash the old positions for transition.
-            nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
-        }
+            //#endregion
+                    }
         // Toggle children on click.
         function dblclick(d) {
             if(d.children) {
@@ -209,7 +205,16 @@ var Tree = (function () {
             update(d);
         }
         function color(d) {
-            return d.children == null ? "red" : d.children.length > 0 ? "#550a3a" : "#c6dbef";
+            if(d._children != null) {
+                if(d._children.length > 0) {
+                    return "red";
+                }
+            } else {
+                if(d.children.length > 0) {
+                    return "#550a3a";
+                }
+            }
+            return "#c6dbef";
         }
         function click(d) {
             var dn = d;
@@ -217,10 +222,15 @@ var Tree = (function () {
             var children = self.parentNode.childNodes;
             //   console.log(d);
                     }
-        window['flatten'] = function () {
-            vis.selectAll("g.node").attr("transform", function (d) {
-                return "translate(" + 0 + "," + d.x + ")";
-            });
+        window['flatten'] = function (flat) {
+            flatten = flat;
+            if(flat) {
+                vis.selectAll("g.node").attr("transform", function (d) {
+                    return "translate(" + 0 + "," + d.x + ")";
+                });
+            } else {
+                update(root);
+            }
         };
         window['deep'] = function (depth) {
             nodes.filter(function (n) {

@@ -105,12 +105,12 @@ class Tree{
             .attr("transform", "translate(20,30)");
 
         var root: any = this.root;
-        root.x0 = 0;
-        root.y0 = 0;
         
 
         var nodes:any[] = null;
         window['root'] = root;
+
+        var flatten:bool = false
 
         update(root);
 
@@ -128,7 +128,7 @@ class Tree{
 
             var nodeEnter = node.enter().append("svg:g")
                 .attr("class", d=> "node depth-"+ d.depth)
-                .attr("transform", d =>  "translate(" + source.y0 + "," + source.x0 + ")")
+                .attr("transform", d =>  "translate(" + source.y + "," + source.x + ")")
                 .style("opacity", 1e-6);
 
             // Enter any new nodes at the parent's previous position.
@@ -154,12 +154,12 @@ class Tree{
             // Transition nodes to their new position.
             nodeEnter.transition()
                 .duration(duration)
-                .attr("transform", d=> "translate(" + d.y + "," + d.x + ")")
+                .attr("transform", d=> "translate(" + (flatten?0: d.y) + "," + d.x + ")")
                 .style("opacity", 1);
 
             node.transition()
                 .duration(duration)
-                .attr("transform", d=>"translate(" + d.y + "," + d.x + ")")
+                .attr("transform", d=>"translate(" + (flatten?0:d.y) + "," + d.x + ")")
                 .style("opacity", 1);
 
             node.selectAll("rect.name").style("stroke", color);
@@ -170,7 +170,7 @@ class Tree{
                 .attr("transform", d=> "translate(" + source.y + "," + source.x + ")")
                 .style("opacity", 1e-6)
                 .remove();
-
+            //#region Links
             (function () {
                 // Update the links…
                 var link = vis.selectAll("path.link")
@@ -180,7 +180,7 @@ class Tree{
                 link.enter().insert("svg:path", "g")
                     .attr("class", "link")
                     .attr("d", function (d) {
-                        var o = { x: source.x0, y: source.y0 };
+                        var o = { x: source.x, y: source.y };
                         return diagonal({ source: o, target: o });
                     })
                     .transition()
@@ -202,11 +202,7 @@ class Tree{
                     .remove();
 
             })//();
-            // Stash the old positions for transition.
-            nodes.forEach(function (d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
+            //#endregion
         }
 
         // Toggle children on click.
@@ -222,7 +218,12 @@ class Tree{
         }
 
         function color(d) {
-            return d.children == null ? "red" : d.children.length>0 ? "#550a3a" : "#c6dbef";
+            if (d._children != null) {
+                if (d._children.length > 0) return "red";
+            } else {
+                if(d.children.length>0) return "#550a3a";
+            }
+            return "#c6dbef";
         }
 
         function click(d: any) {
@@ -232,9 +233,14 @@ class Tree{
          //   console.log(d);
         }
 
-        window['flatten'] = function () {
-            vis.selectAll("g.node")
-                .attr("transform", d=>"translate(" + 0 + "," + d.x + ")")
+        window['flatten'] = function (flat:bool) {
+            flatten = flat;
+            if (flat) {
+                vis.selectAll("g.node")
+                    .attr("transform", d => "translate(" + 0 + "," + d.x + ")");
+            } else
+                update(root);
+            
         }
 
         
