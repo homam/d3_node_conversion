@@ -1,96 +1,22 @@
-﻿/// <reference path="iraq-types.ts" />
+﻿var __extends = this.__extends || function (d, b) {
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+/// <reference path="iraq-types.ts" />
+/// <reference path="loader.ts" />
+/// <reference path="TreeBase.ts" />
 /// <reference path="../lib/underscore.browser.d.ts" />
 /// <reference path="../lib/jquery-1.8.d.ts" />
 /// <reference path="../lib/d3types.ts" />
-var Loader = (function () {
-    function Loader() { }
-    Loader.prototype.load = function () {
-        var def = $.Deferred();
-        d3.csv('/devices/iraq.csv', function (csv) {
-            var records = csv.map(function (c) {
-                return new CSVRecord(c);
-            });
-            // because of the way homam's query is written (it groups  by subMethodDisplayed and subMethodSubscribedTo)
-            // this step is needed to reduce the records of the same subMethod
-            var reduces = _(records).reduce(function (a, b) {
-                var rec = a.filter(function (r) {
-                    return r.id == b.id && r.subMethod == b.subMethod && r.subMethodDisplayed == b.subMethodDisplayed;
-                })[0];
-                if(!!rec) {
-                    rec.visits += b.visits;
-                    rec.submissions += b.submissions;
-                    rec.subscribers += b.subscribers;
-                } else {
-                    a.push(b);
-                }
-                return a;
-            }, []);
-            var subMethods = _.chain(records.map(function (r) {
-                return r.subMethod;
-            })).unique().map(function (sm) {
-                return ({
-                    name: sm,
-                    visits: sum(reduces.filter(function (r) {
-                        return sm == r.subMethod;
-                    }).map(function (r) {
-                        return r.visits;
-                    }))
-                });
-            }).sortBy(function (sm) {
-                return -sm.visits;
-            }).value();
-            var groups = _(reduces).groupBy('id');
-            var nodes = _.map(groups, function (records, id) {
-                return new DeviceNode(id, records);
-            });
-            def.resolve({
-                nodes: nodes,
-                subMethods: subMethods
-            });
-        });
-        return def;
-    };
-    return Loader;
-})();
-var Tree = (function () {
+var Tree = (function (_super) {
+    __extends(Tree, _super);
     function Tree(nodes) {
-        var parentLessIds = _.uniq(nodes.map(function (n) {
-            return n.fallback;
-        })).filter(function (fallbackid) {
-            return nodes.every(function (n) {
-                return n.id != fallbackid;
-            });
-        });
-        nodes = nodes.concat(parentLessIds.map(function (id) {
-            return new DeviceNode(id, [], (id == 'root' ? '' : 'root'));
-        }));
-        if(nodes.every(function (n) {
-            return 'root' != n.id;
-        })) {
-            nodes.push(new DeviceNode('root', [], ''))// root of the tree has no parent, add the root only if it has not been added yet
-            ;
-        }
-        // make the tree
-        nodes.forEach(function (node1) {
-            nodes.forEach(function (node2) {
-                if(node1.id == node2.fallback) {
-                    if(node1.fallback == node2.fallback) {
-                        throw JSON.stringify(node1) + "\n\n" + JSON.stringify(node2);
-                    }
-                    node1.children.push(node2);
-                }
-            });
-        });
-        // sort the tree
-        nodes = _(nodes).sortBy(function (n) {
-            return -n.visitsIncludingChildren();
-        });
-        var root = nodes[0];
-        Tree.sortChildren(root);
-        this.root = root;
+        _super.call(this, nodes);
     }
     Tree.prototype.renderTree = function (element, subMethods, minVisits) {
         if (typeof minVisits === "undefined") { minVisits = 0; }
+        //#region minimize
         var minimize = function (nodes) {
             if(nodes.visitsIncludingChildren() > minVisits) {
                 if(nodes.children.length > 0) {
@@ -105,7 +31,8 @@ var Tree = (function () {
             return null;
         };
         var root = minimize(this.root);
-        var w = 960, h = 3800, i = 0, barHeight = 20, barWidth = w * 0.8, duration = 400, root;
+        //#endregion
+                var w = 960, h = 3800, i = 0, barHeight = 20, barWidth = w * 0.8, duration = 400, root;
         var tree = (d3.layout).tree().size([
             h, 
             100
@@ -252,17 +179,8 @@ var Tree = (function () {
             update(root);
         };
     };
-    Tree.sortChildren = function sortChildren(root) {
-        root.children = _(root.children).sortBy(function (n) {
-            return -n.visitsIncludingChildren();
-        });
-        root.children.forEach(function (c) {
-            return Tree.sortChildren(c);
-        });
-        return root;
-    }
     return Tree;
-})();
+})(TreeBase);
 new Loader().load().done(function (obj) {
     var nodes = obj.nodes;
     var subMethods = obj.subMethods.filter(function (sm) {

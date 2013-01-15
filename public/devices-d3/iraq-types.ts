@@ -1,5 +1,7 @@
 ﻿/// <reference path="../lib/underscore.browser.d.ts" />
 
+//#region ICSVRawRecord, CSVRecord
+
 interface ICSVRawRecord {
     SubMethod:string;
     SubMethod_Displayed:string;
@@ -53,10 +55,12 @@ class CSVRecord {
     public subMethodSubscribedTo: number;
 }
 
+//#endregion
+
 var sum = (nums: number[]) => _(nums).reduce((a, b) => a + b, 0);
 
 class DeviceNode {
-    constructor(public id:string, records: CSVRecord[], fallback:string = null) {
+    constructor(public id:string, private records: CSVRecord[], fallback:string = null) {
         this.visits = sum(records.map(r => r.visits));
         this.submissions = sum(records.map(r => r.submissions));
         this.subscribers = sum(records.map(r => r.subscribers));
@@ -67,16 +71,31 @@ class DeviceNode {
         this.children = [];
     }
 
-    public visits: number;
-    public submissions: number;
-    public subscribers: number;
+    private visits: number;
+    private submissions: number;
+    private subscribers: number;
+    private subMethods: SubMethod[];
 
     public fallback: string;
-
-    public subMethods: SubMethod[];
-
     public children: DeviceNode[];
 
+    private clone(): DeviceNode {
+        return new DeviceNode(this.id, this.records, this.fallback);
+    }
+
+    //returns this
+    public addChild(node: DeviceNode) :DeviceNode {
+        if (this.children.length == 0) {
+            // add myself to the children
+            this.children.push(this.clone());
+            this.visits = 0;
+            this.submissions = 0;
+            this.subscribers = 0;
+            this.subMethods = [];
+        }
+        this.children.push(node);
+        return this;
+    }
 
 
 

@@ -14,6 +14,7 @@ var CSVRecord = (function () {
     }
     return CSVRecord;
 })();
+//#endregion
 var sum = function (nums) {
     return _(nums).reduce(function (a, b) {
         return a + b;
@@ -23,6 +24,7 @@ var DeviceNode = (function () {
     function DeviceNode(id, records, fallback) {
         if (typeof fallback === "undefined") { fallback = null; }
         this.id = id;
+        this.records = records;
         this._subscribersIncludingChildrenForAMethod = {
         };
         this._visitsIncludingChildrenForAMethod = {
@@ -42,6 +44,22 @@ var DeviceNode = (function () {
         });
         this.children = [];
     }
+    DeviceNode.prototype.clone = function () {
+        return new DeviceNode(this.id, this.records, this.fallback);
+    }//returns this
+    ;
+    DeviceNode.prototype.addChild = function (node) {
+        if(this.children.length == 0) {
+            // add myself to the children
+            this.children.push(this.clone());
+            this.visits = 0;
+            this.submissions = 0;
+            this.subscribers = 0;
+            this.subMethods = [];
+        }
+        this.children.push(node);
+        return this;
+    };
     DeviceNode.prototype.subscribersIncludingChildrenForAMethod = function (method) {
         if(isNaN(this._subscribersIncludingChildrenForAMethod[method])) {
             this._subscribersIncludingChildrenForAMethod[method] = (!!this.subMethods ? sum(this.subMethods.filter(function (s) {

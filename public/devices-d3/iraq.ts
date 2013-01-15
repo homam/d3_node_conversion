@@ -1,78 +1,21 @@
 ﻿/// <reference path="iraq-types.ts" />
+/// <reference path="loader.ts" />
+/// <reference path="TreeBase.ts" />
 /// <reference path="../lib/underscore.browser.d.ts" />
 /// <reference path="../lib/jquery-1.8.d.ts" />
 /// <reference path="../lib/d3types.ts" />
 
-class Loader {
-    load():JQueryPromise {
-        var def = $.Deferred();
-        d3.csv('/devices/iraq.csv', csv => {
-            
-            var records: CSVRecord[] = csv.map(c => new CSVRecord(c));
-
-            // because of the way homam's query is written (it groups  by subMethodDisplayed and subMethodSubscribedTo)
-            // this step is needed to reduce the records of the same subMethod
-            var reduces:CSVRecord[] = _(records).reduce((a: CSVRecord[], b: CSVRecord) => {
-                var rec = a.filter(r => r.id == b.id && r.subMethod == b.subMethod
-                     && r.subMethodDisplayed==b.subMethodDisplayed)[0];
-                if (!!rec) {
-                    rec.visits += b.visits;
-                    rec.submissions += b.submissions;
-                    rec.subscribers += b.subscribers;
-                } else
-                    a.push(b);
-                return a;
-            },[]);
-
-            var subMethods = _.chain(records.map(r => r.subMethod)).unique()
-                .map(sm => ({ name: sm, visits: sum(reduces.filter(r => sm == r.subMethod).map(r => r.visits)) }))
-                .sortBy(sm=> -sm.visits).value();
-
-            var groups = _(reduces).groupBy('id');
-            var nodes:DeviceNode[] = _.map(groups, (records:CSVRecord[],id:string) => new DeviceNode(id,records));
-            def.resolve({nodes:nodes,subMethods:subMethods});
-
-        });
-        return def;
-    }
-}
 
 
-
-class Tree{
+class Tree extends TreeBase{
 
     constructor(nodes:DeviceNode[]){
-        var parentLessIds = _.uniq(nodes.map(n => n.fallback)).filter(fallbackid => nodes.every(n => n.id != fallbackid));
-        nodes = nodes.concat(parentLessIds.map((id:string) => new DeviceNode(id,[], (id == 'root' ? '' :'root'))));
-        if (nodes.every(n => 'root' != n.id)) {
-            nodes.push(new DeviceNode('root',[],'')); // root of the tree has no parent, add the root only if it has not been added yet
-        }
-
-        // make the tree
-        nodes.forEach(node1 => {
-            nodes.forEach(node2 => {
-                if (node1.id == node2.fallback) {
-                    if(node1.fallback == node2.fallback)
-                        throw JSON.stringify(node1) + "\n\n" + JSON.stringify(node2);
-                    node1.children.push(node2);
-                }
-            });
-        });
-
-        // sort the tree
-        nodes =  _(nodes).sortBy((n: DeviceNode) => -n.visitsIncludingChildren());
-        var root = nodes[0];
-
-        Tree.sortChildren(root);
-
-        this.root = root;
-
+        super(nodes);
     }
 
-    public root: DeviceNode;
-
     public renderTree(element: JQuery, subMethods: string[], minVisits: number = 0) {
-        var minimize = function (nodes: DeviceNode) {
+      //#region minimize
+          var minimize = function (nodes: DeviceNode) {
             if (nodes.visitsIncludingChildren() > minVisits) {
                 if (nodes.children.length > 0) {
                     nodes.children = nodes.children.map(c => minimize(c)).filter(c => c != null);
@@ -83,6 +26,7 @@ class Tree{
         }
 
         var root = minimize(this.root);
+    //#endregion
 
         var w = 960,
             h = 3800,
@@ -262,15 +206,7 @@ class Tree{
   
 
     }
-
-    static sortChildren(root: DeviceNode): DeviceNode {
-        root.children = _(root.children).sortBy((n: DeviceNode) => -n.visitsIncludingChildren());
-        root.children.forEach(c => sortChildren(c));
-        return root;
-    }
-
    
-
 }
 
 

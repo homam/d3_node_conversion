@@ -1,7 +1,7 @@
 
 
 var express = require("express")
-var app = express.createServer();
+var app = express();
 // Configuration
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -30,7 +30,8 @@ app.configure('development', function () {
     'pagestats', 
     'devices', 
     'devices-iraq', 
-    'devices-d3'
+    'devices-d3', 
+    'devices-d3-partition'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {

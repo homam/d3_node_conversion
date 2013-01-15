@@ -1,5 +1,8 @@
 interface ID3Selectors {
-    select: (selector: string) => ID3Selection;
+    select: {
+        (selector: string): ID3Selection;
+        (selector: any): ID3Selection;
+    };
     selectAll: (selector: string) => ID3Selection;
     filter: (f: (a) => bool) => ID3Selection;
 }
