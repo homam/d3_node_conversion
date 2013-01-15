@@ -28,7 +28,8 @@ app.configure('development', () => {
      'growth-unsubs','growth-percent-unsubs', 'dashboard',
      'transition', 'pagestats',
          'devices', 'devices-iraq'
-         ,'devices-d3', 'devices-d3-partition'].forEach(v => {
+         ,'devices-d3', 'devices-d3-partition',
+             'histogram'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 
