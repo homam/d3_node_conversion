@@ -29,7 +29,7 @@ app.configure('development', () => {
      'transition', 'pagestats',
          'devices', 'devices-iraq'
          ,'devices-d3', 'devices-d3-partition',
-             'histogram'].forEach(v => {
+             'histogram', 'histogramg'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 

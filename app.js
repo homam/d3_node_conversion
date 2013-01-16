@@ -32,7 +32,8 @@ app.configure('development', function () {
     'devices-iraq', 
     'devices-d3', 
     'devices-d3-partition', 
-    'histogram'
+    'histogram', 
+    'histogramg'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {
