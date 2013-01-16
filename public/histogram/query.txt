@@ -1,0 +1,11 @@
+DECLARE @Start datetime = '2013-01-10';
+DECLARE @End datetime = '2013-01-15';
+DECLARE @PageId int = 369;
+declare @CountryName varchar(100) = 'Iraq';
+
+DECLARE @Country int = (select countryid from dbo.countries WHERE countryname like @CountryName);
+
+SELECT  (v.Date_Created) AS Visit, (w.date_created) as Sub FROM WAP_Visits V (NOLOCK)
+LEFT join dbo.web_subscriptions W (NOLOCK) on w.visitid = v.vid AND w.source = 1
+WHERE v.country = @Country and v.pageid = @PageId and v.Date_Created between @Start and @End
+order by v.vid desc

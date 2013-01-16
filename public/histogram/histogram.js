@@ -3,14 +3,20 @@ top: 10,
 right: 30,
 bottom: 30,
 left: 30}, width = 960 - margin.left - margin.right, height = 500 - margin.top - margin.bottom;
-var parseDate = d3.time.format("%m/%d/%Y %H:%M:%S").parse;
+var parseDate = d3.time.format('%d/%m/%Y %H:%M:%S').parse;
 var xAxisDateFormat = d3.time.format("%H:%M");
 var epoch = parseDate('1/12/2013 00:00:00');
 var epochPlus1 = parseDate('1/13/2013 00:00:00');
-d3.csv("/histogram/visits-f.csv?", function (rawData) {
+d3.csv("/histogram/Iraq_369.csv?", function (rawData) {
+	rawData = rawData.reverse()
+	epoch = parseDate(rawData[0].Visit);
+	epochPlus1 = parseDate(rawData[rawData.length-1].Visit);
     var values = rawData.map(function (d) {
-        return parseDate(d.Visit).valueOf() - epoch.valueOf();
+		var date = parseDate(d.Visit);
+		var ep = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+        return date.valueOf() - ep.valueOf();
     });
+	window.values= values;
     var x = d3.scale.linear().domain(d3.extent(values)).range([
         0, 
         width
@@ -22,13 +28,15 @@ d3.csv("/histogram/visits-f.csv?", function (rawData) {
     var datav = (d3.layout).histogram().bins(bins)(values);
     window['datav'] = datav;
     var values = rawData.filter(function (d) {
-        return d.Sub != 'NULL';
+        return d.Sub != ' ';
     }).map(function (d) {
         return parseDate(d.Sub);
     }).filter(function (d) {
         return d >= epoch && d <= epochPlus1;
     }).map(function (d) {
-        return d.valueOf() - epoch.valueOf();
+		var date = d;
+		var ep = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+        return d.valueOf() - ep.valueOf();
     });
     var datas = (d3.layout).histogram().bins(bins)(values);
     window['datas'] = data;
