@@ -10,7 +10,7 @@ var margin = { top: 10, right: 30, bottom: 30, left: 30 },
     height = 500 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%m/%d/%Y %H:%M:%S").parse;
-var  xAxisDateFormat= d3.time.format("%d %H:%M");
+var  xAxisDateFormat= d3.time.format("%H:%M");
 var epoch = parseDate('1/12/2013 00:00:00');
 var epochPlus1 = parseDate('1/13/2013 00:00:00');
 
@@ -18,28 +18,28 @@ d3.csv("/histogram/visits-f.csv?", function (rawData: any[]) {
     // Generate an Irwin–Hall distribution of 10 random variables.
     var values = rawData.map(d => parseDate(d.Visit).valueOf() - epoch.valueOf());
 
-       var x = d3.scale.linear()
-        .domain(d3.extent(values))
-        .range([0, width]);
+    var x = d3.scale.linear()
+     .domain(d3.extent(values))
+     .range([0, width]);
     window['x'] = x;
 
+    var bins = (<any>d3).range(0, 25, 1).map(h => {
+        return  (h * 1000 * 60 * 60);
+    });
     // Generate a histogram using twenty uniformly-spaced bins.
     var datav = (<any>d3.layout).histogram()
-        .bins(x.ticks(24))(values);
+        .bins(bins)(values);
 
-        window['datav'] = datav;
+    window['datav'] = datav;
 
     var values = rawData.filter(d => d.Sub != 'NULL')
         .map(d =>parseDate(d.Sub)).filter(d => d>=epoch && d<=epochPlus1)
         .map(d => d.valueOf() - epoch.valueOf());
-    //(<any>d3).range(1000).map((<any>d3.random).irwinHall(10));
-
-
-
 
     // Generate a histogram using twenty uniformly-spaced bins.
     var datas = (<any>d3.layout).histogram()
-        .bins(x.ticks(24))(values);
+        .bins(bins)(values);
+
     window['datas'] = data;
 
     var data = datas.map((d, i) => {
@@ -63,14 +63,16 @@ var render = function (data: any[],x:ID3LinearScale, formatCount:any) {
         .range([height, 0]);
 
     var xAxis = d3.svg.axis()
-        .scale(x)
+        .scale(x).ticks(25)
         .orient("bottom")
         .tickFormat(d => xAxisDateFormat(new Date(epoch.valueOf() + d)));
 
-    var svg = d3.select("body").append("svg")
+    var osvg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-      .append("g")
+        .attr("height", height + margin.top + margin.bottom);
+
+    //osvg.append("text").attr("x", 0).attr("y", 0).text("Visits");
+   var svg = osvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var bar = svg.selectAll(".bar")
