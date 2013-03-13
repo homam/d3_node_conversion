@@ -20,14 +20,35 @@ var Dashboard;
                     0, 
                     0.5
                 ]);
+                var visitsScale = d3.scale.linear().range([
+                    height, 
+                    0
+                ]).domain([
+                    d3.min(data, function (d) {
+                        return d.Visits;
+                    }), 
+                    d3.max(data, function (d) {
+                        return d.Visits;
+                    })
+                ]);
                 var convLine = d3.svg.line().interpolate("basis").x(function (d) {
                     return xScale(d.day);
                 }).y(function (d) {
                     return yScale(d.Subs / d.Visits);
                 });
+                var visitsLine = d3.svg.line().interpolate("basis").x(function (d) {
+                    return xScale(d.day);
+                }).y(function (d) {
+                    return visitsScale(d.Visits);
+                });
                 var g = this.g.datum(data);
-                g.append("path").attr("class", "subs line").attr("d", convLine);
+                g.append("path").attr("class", "conv line").attr("d", convLine);
+                g.append("path").attr("class", "visits line").attr("d", visitsLine);
                 this.drawXAxis().drawYAxis('Conversion');
+                var ratioYAxis = d3.svg.axis().scale(visitsScale).orient("right");
+                var axis = this.drawCustomYAxis(g, ratioYAxis, false);
+                axis.group.attr("transform", "translate(" + this.width + ",0)").select(".domain").attr("style", "stroke:none");
+                axis.label.text("Visits").attr("transform", "translate(-4,42) rotate(-90)");
             };
             return KenyaGraph;
         })(Dashboard.Growth.Graph);

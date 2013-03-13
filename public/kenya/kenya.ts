@@ -12,16 +12,34 @@ module Dashboard.Growth {
 
             yScale.domain([0, .5]);
 
+            var visitsScale = d3.scale.linear().range([height, 0])
+                .domain([d3.min(data, d=> d.Visits),d3.max(data, d=> d.Visits)]);
+
             var convLine = d3.svg.line().interpolate("basis")
                 .x(d => xScale(d.day))
                 .y(d => yScale(d.Subs / d.Visits));
+
+            var visitsLine = d3.svg.line().interpolate("basis")
+                .x(d => xScale(d.day))
+                .y(d => visitsScale(d.Visits));
           
             var g = this.g.datum(data);
 
-            g.append("path").attr("class", "subs line")
+            g.append("path").attr("class", "conv line")
                 .attr("d",convLine);
 
+            g.append("path").attr("class", "visits line")
+                .attr("d",visitsLine);
+
             this.drawXAxis().drawYAxis('Conversion');
+            
+            
+                var ratioYAxis = d3.svg.axis().scale(visitsScale).orient("right");
+                var axis = this.drawCustomYAxis(g, ratioYAxis, false);
+                axis.group
+                    .attr("transform", "translate(" + this.width + ",0)")
+                    .select(".domain").attr("style","stroke:none");
+                axis.label.text("Visits").attr("transform", "translate(-4,42) rotate(-90)");
 
         }
     }
