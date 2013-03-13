@@ -88,7 +88,7 @@
 	<script src="/growth/dashboard-sub-unsub-dff.js"></script>
 	<script src="/growth/dashboard-submethods-base.js"></script>
 	<script>
-		var loader = new Dashboard.Growth.DataLoader('/growth/ksa.csv');
+		var loader = new Dashboard.Growth.DataLoader('/growth/kenya.csv');
 		var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
 		new Dashboard.Growth.GrowthGraph(loader,smoother);
 		new Dashboard.Growth.SubUnsubDiff(loader,smoother);
