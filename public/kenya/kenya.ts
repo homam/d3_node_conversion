@@ -44,7 +44,7 @@ module Dashboard.Growth {
             
             
                 var ratioYAxis = d3.svg.axis().scale(visitsScale).orient("right");
-                var axis = this.drawCustomYAxis(g, ratioYAxis, false);
+                var axis = this.drawCustomYAxis(this.g, ratioYAxis, false);
                 axis.group
                     .attr("transform", "translate(" + this.width + ",0)")
                     .select(".domain").attr("style","stroke:none");
