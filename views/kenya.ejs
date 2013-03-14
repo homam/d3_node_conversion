@@ -79,7 +79,7 @@
 	<script src="/kenya/kenya.js"></script>
 	<script>
         
-	    ['/kenya/kenya.csv', '/kenya/kenyabb.csv'].forEach(function (path) {
+	    ['/kenya/kenya-refs.csv'].forEach(function (path) {
 	        var loader = new Dashboard.Growth.DataLoader(path, "%m/%d/%Y");
 	        var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
 	        new Dashboard.Growth.KenyaGraph(loader, smoother);

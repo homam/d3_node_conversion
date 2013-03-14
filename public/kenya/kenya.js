@@ -31,19 +31,26 @@ var Dashboard;
                         return d.Visits;
                     })
                 ]);
-                var convLine = d3.svg.line().interpolate("basis").x(function (d) {
-                    return xScale(d.day);
-                }).y(function (d) {
-                    return yScale(d.Subs / d.Visits);
+                var grouped = _.groupBy(data, function (item) {
+                    return item.Ref;
                 });
-                var visitsLine = d3.svg.line().interpolate("basis").x(function (d) {
-                    return xScale(d.day);
-                }).y(function (d) {
-                    return visitsScale(d.Visits);
+                var self = this;
+                _(grouped).each(function (group) {
+                    console.log(group);
+                    var convLine = d3.svg.line().interpolate("basis").x(function (d) {
+                        return xScale(d.day);
+                    }).y(function (d) {
+                        return yScale(d.Subs / d.Visits);
+                    });
+                    var visitsLine = d3.svg.line().interpolate("basis").x(function (d) {
+                        return xScale(d.day);
+                    }).y(function (d) {
+                        return visitsScale(d.Visits);
+                    });
+                    var g = self.g.datum(group);
+                    g.append("path").attr("class", "conv line").attr("d", convLine);
+                    g.append("path").attr("class", "visits line").attr("d", visitsLine);
                 });
-                var g = this.g.datum(data);
-                g.append("path").attr("class", "conv line").attr("d", convLine);
-                g.append("path").attr("class", "visits line").attr("d", visitsLine);
                 this.drawXAxis().drawYAxis('Conversion');
                 var ratioYAxis = d3.svg.axis().scale(visitsScale).orient("right");
                 var axis = this.drawCustomYAxis(g, ratioYAxis, false);

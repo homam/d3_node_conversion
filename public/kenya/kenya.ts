@@ -15,21 +15,30 @@ module Dashboard.Growth {
             var visitsScale = d3.scale.linear().range([height, 0])
                 .domain([d3.min(data, d=> d.Visits),d3.max(data, d=> d.Visits)]);
 
-            var convLine = d3.svg.line().interpolate("basis")
-                .x(d => xScale(d.day))
-                .y(d => yScale(d.Subs / d.Visits));
+            var grouped = _.groupBy(data, (item) => item.Ref);
 
-            var visitsLine = d3.svg.line().interpolate("basis")
-                .x(d => xScale(d.day))
-                .y(d => visitsScale(d.Visits));
-          
-            var g = this.g.datum(data);
+            var self = this;
+            
+            _(grouped).each(function (group: IData[]) {
 
-            g.append("path").attr("class", "conv line")
-                .attr("d",convLine);
+                console.log(group);
 
-            g.append("path").attr("class", "visits line")
-                .attr("d",visitsLine);
+                var convLine = d3.svg.line().interpolate("basis")
+                    .x(d => xScale(d.day))
+                    .y(d => yScale(d.Subs / d.Visits));
+
+                var visitsLine = d3.svg.line().interpolate("basis")
+                    .x(d => xScale(d.day))
+                    .y(d => visitsScale(d.Visits));
+
+                var g = self.g.datum(group);
+
+                g.append("path").attr("class", "conv line")
+                    .attr("d", convLine);
+
+                g.append("path").attr("class", "visits line")
+                    .attr("d", visitsLine);
+            });
 
             this.drawXAxis().drawYAxis('Conversion');
             
