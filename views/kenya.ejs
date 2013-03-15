@@ -15,18 +15,6 @@
 			border: solid 1px black;
 		}
 
-		
-
-		.area.above {
-		  fill: rgb(252,141,89);
-		}
-
-		.area.below {
-		  fill: rgb(145,207,96);
-		}
-
-
-
 		.axis path,
 		.axis line {
 		  fill: none;
@@ -34,23 +22,28 @@
 		  shape-rendering: crispEdges;
 		}
 
-		 .subMethods.wigglish .axis path {
-			stroke:#fff;
-		 }
-
 		.y.axis line,
 		.x.axis line {
 			stroke: rgba(87, 87, 87, 0.1);
 			shape-rendering: crispEdges;
 		}
 		
+		
 
-		.axis.conversion path {
-			stroke: purple;
+		.conv text {
+			fill: darkred;
+		}
+
+		.conv > text {
+					font-size: 14px;
+}
+
+		.visits text {
+			fill:green;
 		}
 
 
-		.y.axis.subs {
+		.y.axis.visits {
 			fill: green;
 		}
 
@@ -61,11 +54,11 @@
 		}
 
 		.line.conv{ 
-			stroke: green;
+			stroke: darkred;
 		}
 
 		.line.visits{
-			stroke:darkred;
+			stroke:green;
 		}
 		
 
@@ -81,8 +74,9 @@
         
 	    ['/kenya/kenya-refs.csv'].forEach(function (path) {
 	        var loader = new Dashboard.Growth.DataLoader(path, "%m/%d/%Y");
-	        var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
-	        new Dashboard.Growth.KenyaGraph(loader, smoother);
+	        
+
+			Dashboard.Growth.DrawByRef(loader);
 	    });
 
 	</script>

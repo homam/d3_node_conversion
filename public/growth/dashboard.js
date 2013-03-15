@@ -46,11 +46,18 @@ var Dashboard;
                 this.url = url;
                 this.dateFormat = dateFormat;
             }
+            DataLoader.prototype.loadRawData = function () {
+                var def = $.Deferred();
+                d3.csv(this.url, function (raw) {
+                    return def.resolve(raw);
+                });
+                return def;
+            };
             DataLoader.prototype.load = function () {
                 if(!this.loader) {
                     this.loader = $.Deferred();
                     var self = this;
-                    d3.csv(self.url, function (raw) {
+                    self.loadRawData().done(function (raw) {
                         var parseDate = d3.time.format(self.dateFormat).parse;
                         raw.forEach(function (d) {
                             d.day = parseDate(d.Day);
@@ -111,6 +118,8 @@ var Dashboard;
         Growth.MovingAverageDataSmoother = MovingAverageDataSmoother;        
         var Graph = (function () {
             function Graph(loader, smoother, selector, margin, width, height) {
+                this.loader = loader;
+                this.smoother = smoother;
                 margin = $.extend(_.clone(_margin), margin || {
                 });
                 width = adjustWidthByMargin(width || _width, margin);
@@ -122,27 +131,30 @@ var Dashboard;
                 this.margin = margin;
                 this.svg = svg;
                 this.g = g;
-                this.xScale = d3.time.scale().range([
+                this.xScale = (this.xScale || d3.time.scale()).range([
                     0, 
                     width
                 ]);
-                this.yScale = d3.scale.linear().range([
+                this.yScale = (this.yScale || d3.scale.linear()).range([
                     height, 
                     0
                 ]);
                 this.xAxis = d3.svg.axis().scale(this.xScale).orient("bottom");
                 this.yAxis = d3.svg.axis().scale(this.yScale).orient("left");
+                this.loadAndRaw();
+            }
+            Graph.prototype.loadAndRaw = function () {
                 var self = this;
-                loader.load().done(function (data) {
-                    if(!!smoother) {
-                        data = smoother.smooth(data);
+                this.loader.load().done(function (data) {
+                    if(!!self.smoother) {
+                        data = self.smoother.smooth(data);
                     }
                     self.xScale.domain(d3.extent(data, function (d) {
                         return d.day;
                     }));
                     self.draw(data);
                 });
-            }
+            };
             Graph.prototype.draw = function (data) {
                 console.log("not implemented");
             };
@@ -155,21 +167,23 @@ var Dashboard;
                 g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height) + ")").call(xAxis).selectAll('g text').attr("transform", "translate(0,5)");
                 return this;
             };
-            Graph.prototype.drawYAxis = function (label, lineTicks) {
+            Graph.prototype.drawYAxis = function (label, lineTicks, className) {
                 if (typeof lineTicks === "undefined") { lineTicks = true; }
+                if (typeof className === "undefined") { className = ''; }
                 var g = this.g;
                 var yAxis = this.yAxis;
 
-                var axis = this.drawCustomYAxis(g, yAxis, lineTicks);
+                var axis = this.drawCustomYAxis(g, yAxis, lineTicks, className);
                 axis.label.attr("transform", "rotate(-90) translate(-5,12)").style("text-anchor", "end").text(label);
                 return this;
             };
-            Graph.prototype.drawCustomYAxis = function (g, yAxis, lineTicks) {
+            Graph.prototype.drawCustomYAxis = function (g, yAxis, lineTicks, className) {
                 if (typeof lineTicks === "undefined") { lineTicks = false; }
+                if (typeof className === "undefined") { className = ''; }
                 if(lineTicks) {
                     yAxis.tickSize(-this.width);
                 }
-                var gAxis = g.append("g").attr("class", "y axis");
+                var gAxis = g.append("g").attr("class", "y axis " + className);
                 var tickGroups = gAxis.call(yAxis);
                 var texts = tickGroups.selectAll('g text').attr("transform", "translate(-2,0)");
                 var label = gAxis.append("text");

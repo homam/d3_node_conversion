@@ -45,11 +45,18 @@ module Dashboard.Growth {
 
         private loader: JQueryDeferred;
 
+        // protected
+        loadRawData(): JQueryDeferred {
+            var def = $.Deferred();
+            d3.csv(this.url, (raw: any[]) => def.resolve(raw));
+            return def;
+        }
+
         public load(): JQueryDeferred {
             if (!this.loader) {
                 this.loader = $.Deferred();
                 var self = this;
-                d3.csv(self.url, (raw: any[]) => {
+                self.loadRawData().done((raw: any[]) => {
                     var parseDate = d3.time.format(self.dateFormat).parse;
                     raw.forEach(d => {
                         d.day = parseDate(d.Day);
@@ -104,7 +111,7 @@ module Dashboard.Growth {
 
 
     export class Graph {
-        constructor(loader:IDataLoader, smoother:IDataSmoother,
+        constructor(public loader:IDataLoader, public smoother:IDataSmoother,
              selector, margin?:IMargin, width?:number, height?:number) {
             margin = <IMargin> $.extend(_.clone(_margin), margin || {});
             width = adjustWidthByMargin(width || _width, margin);
@@ -123,19 +130,13 @@ module Dashboard.Growth {
             this.svg = svg;
             this.g = g;
 
-            this.xScale = d3.time.scale().range([0, width]);
-            this.yScale = d3.scale.linear().range([height, 0]);
+            this.xScale = (this.xScale || d3.time.scale()).range([0, width]);
+            this.yScale = (this.yScale || d3.scale.linear()).range([height, 0]);
 
             this.xAxis = d3.svg.axis().scale(this.xScale).orient("bottom");
             this.yAxis = d3.svg.axis().scale(this.yScale).orient("left");
 
-            var self = this;
-            loader.load().done((data: IData[]) => {
-                if (!!smoother)
-                     data = smoother.smooth(data);
-                self.xScale.domain(d3.extent(data, d => d.day));
-                self.draw(data);
-            });
+            this.loadAndRaw();
         }
 
         public height: number;
@@ -149,6 +150,16 @@ module Dashboard.Growth {
 
         public xAxis: ID3SvgAxis;
         public yAxis: ID3SvgAxis;
+
+        public loadAndRaw() {
+            var self = this;
+            this.loader.load().done((data: IData[]) => {
+                if (!!self.smoother)
+                     data = self.smoother.smooth(data);
+                self.xScale.domain(d3.extent(data, d => d.day));
+                self.draw(data);
+            });
+        }
 
         public draw(data:any[]): void {
             console.log("not implemented");
@@ -166,23 +177,23 @@ module Dashboard.Growth {
             return this;
         }
 
-        public drawYAxis(label?: string, lineTicks:bool = true) {
+        public drawYAxis(label?: string, lineTicks:bool = true, className:string = '') {
             var g = this.g,
                 yAxis = this.yAxis;
 
-            var axis = this.drawCustomYAxis(g, yAxis, lineTicks);
+            var axis = this.drawCustomYAxis(g, yAxis, lineTicks, className);
             axis.label.attr("transform", "rotate(-90) translate(-5,12)")
                 .style("text-anchor", "end").text(label);
             return this;
         }
 
         public drawCustomYAxis(g:ID3Selection, yAxis: ID3SvgAxis,
-            lineTicks:bool = false) {
+            lineTicks:bool = false, className:string = '') {
             
             if(lineTicks)
                 yAxis.tickSize(-this.width);
 
-            var gAxis = g.append("g").attr("class", "y axis");
+            var gAxis = g.append("g").attr("class", "y axis " + className);
             var tickGroups = gAxis.call(yAxis);
             var texts = tickGroups.selectAll('g text').attr("transform", "translate(-2,0)");
 
