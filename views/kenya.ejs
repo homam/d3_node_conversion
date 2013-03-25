@@ -43,10 +43,7 @@
 			stroke: rgba(87, 87, 87, 0.1);
 			shape-rendering: crispEdges;
 		}
-		.y.axis .major line {
-		  stroke: #000;
-		  stroke-opacity: 1;
-		}
+		
 
 		.axis.conversion path {
 			stroke: purple;
@@ -63,33 +60,31 @@
 		  stroke-width: 1.5px;
 		}
 
-		.line.subs{ 
+		.line.conv{ 
 			stroke: green;
 		}
-		.area.subs {
-			fill: #91CF60;
-		}
-		.area.subs.inUnsubsArea{
-			fill:rgba(6, 252, 6, 0.37);
-		}
 
-		.line.unsubs{
+		.line.visits{
 			stroke:darkred;
 		}
-		.area.unsubs{
-			fill: darkred;
-		}
+		
 
 	
 	</style>
 </head>
 <body>
-	<h1>Growth</h1>
+	<h1>Kenya JApp</h1>
 	
 	<script src="/growth/dashboard.js"></script>
-	<script src="/growth/dashboard-transition.js"></script>
+	<script src="/kenya/kenya.js"></script>
 	<script>
-		new TransitionGraph();
+        
+	    ['/kenya/kenya-refs.csv'].forEach(function (path) {
+	        var loader = new Dashboard.Growth.DataLoader(path, "%m/%d/%Y");
+	        var smoother = new Dashboard.Growth.MovingAverageDataSmoother(7);
+	        new Dashboard.Growth.KenyaGraph(loader, smoother);
+	    });
+
 	</script>
 </body>
 </html>

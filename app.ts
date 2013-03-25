@@ -29,7 +29,8 @@ app.configure('development', () => {
      'transition', 'pagestats',
          'devices', 'devices-iraq'
          ,'devices-d3', 'devices-d3-partition',
-             'histogram', 'histogramg'].forEach(v => {
+             'histogram', 'histogramg'
+             ,'kenya'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 

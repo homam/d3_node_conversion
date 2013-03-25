@@ -40,7 +40,7 @@ module Dashboard.Growth {
     }
 
     export class DataLoader implements IDataLoader {
-        constructor(private url: string) {
+        constructor(private url: string, private dateFormat = "%d/%m/%Y") {
         }
 
         private loader: JQueryDeferred;
@@ -50,10 +50,11 @@ module Dashboard.Growth {
                 this.loader = $.Deferred();
                 var self = this;
                 d3.csv(self.url, (raw: any[]) => {
-                    var parseDate = d3.time.format("%d/%m/%Y").parse;
+                    var parseDate = d3.time.format(self.dateFormat).parse;
                     raw.forEach(d => {
                         d.day = parseDate(d.Day);
                         d.Subs = parseInt(d.Subs);
+                        d.Visits = +d.Visits;
                         d.ActiveSubs = +d['Active Subs'];
                         d.Unsubs = +d['Un Subs'];
                         d.Growth = +d.Growth;

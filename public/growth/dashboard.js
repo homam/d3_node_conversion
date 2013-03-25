@@ -8,10 +8,14 @@ var Dashboard;
             return width - margin.left - margin.right;
         };
         var _margin = {
-top: 20,
-right: 30,
-bottom: 30,
-left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustHeightByMargin(500, _margin);
+            top: 20,
+            right: 30,
+            bottom: 30,
+            left: 40
+        };
+        var _width = adjustWidthByMargin(880, _margin);
+        var _height = adjustHeightByMargin(500, _margin);
+
         var _subMethodNames = [
             'Direct Wap', 
             'WEB Pin', 
@@ -37,18 +41,21 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
         Growth.subMethodNames = _subMethodNames;
         Growth.unsubMethodNames = _unsubMethodNames;
         var DataLoader = (function () {
-            function DataLoader(url) {
+            function DataLoader(url, dateFormat) {
+                if (typeof dateFormat === "undefined") { dateFormat = "%d/%m/%Y"; }
                 this.url = url;
+                this.dateFormat = dateFormat;
             }
             DataLoader.prototype.load = function () {
                 if(!this.loader) {
                     this.loader = $.Deferred();
                     var self = this;
                     d3.csv(self.url, function (raw) {
-                        var parseDate = d3.time.format("%d/%m/%Y").parse;
+                        var parseDate = d3.time.format(self.dateFormat).parse;
                         raw.forEach(function (d) {
                             d.day = parseDate(d.Day);
                             d.Subs = parseInt(d.Subs);
+                            d.Visits = +d.Visits;
                             d.ActiveSubs = +d['Active Subs'];
                             d.Unsubs = +d['Un Subs'];
                             d.Growth = +d.Growth;
@@ -140,14 +147,19 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
                 console.log("not implemented");
             };
             Graph.prototype.drawXAxis = function () {
-                var g = this.g, xAxis = this.xAxis, height = this.height;
+                var g = this.g;
+                var xAxis = this.xAxis;
+                var height = this.height;
+
                 xAxis.tickSize(-this.height, -this.height, -this.height);
                 g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (height) + ")").call(xAxis).selectAll('g text').attr("transform", "translate(0,5)");
                 return this;
             };
             Graph.prototype.drawYAxis = function (label, lineTicks) {
                 if (typeof lineTicks === "undefined") { lineTicks = true; }
-                var g = this.g, yAxis = this.yAxis;
+                var g = this.g;
+                var yAxis = this.yAxis;
+
                 var axis = this.drawCustomYAxis(g, yAxis, lineTicks);
                 axis.label.attr("transform", "rotate(-90) translate(-5,12)").style("text-anchor", "end").text(label);
                 return this;
@@ -173,4 +185,6 @@ left: 40        }, _width = adjustWidthByMargin(880, _margin), _height = adjustH
         Growth.Graph = Graph;        
     })(Dashboard.Growth || (Dashboard.Growth = {}));
     var Growth = Dashboard.Growth;
+
 })(Dashboard || (Dashboard = {}));
+
