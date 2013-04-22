@@ -30,7 +30,8 @@ app.configure('development', () => {
          'devices', 'devices-iraq'
          ,'devices-d3', 'devices-d3-partition',
              'histogram', 'histogramg'
-             ,'kenya'].forEach(v => {
+             ,'kenya',
+             'googleplay'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 

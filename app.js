@@ -32,7 +32,8 @@ app.configure('development', function () {
     'devices-d3-partition', 
     'histogram', 
     'histogramg', 
-    'kenya'
+    'kenya', 
+    'googleplay'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {
