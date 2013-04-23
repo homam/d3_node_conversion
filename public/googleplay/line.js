@@ -106,20 +106,44 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
     x.domain(d3.extent(raw, function (d) {
         return d.date;
     }));
-    yConvScale.domain([
-        0, 
-        d3.max(raw.filter(function (d) {
-            return d.visits > 100;
-        }), function (d) {
-            return (d.subscribers / d.visits);
-        })
-    ]);
-    yVisitsScale.domain([
-        0, 
-        d3.max(raw, function (d) {
-            return d.visits;
-        })
-    ]);
+    var groups = _(raw).groupBy(function (r) {
+        return r.country + '__' + r.service;
+    });
+    _(groups).forEach(function (group, key) {
+        var _this = this;
+        yConvScale.domain([
+            0, 
+            d3.max(group.filter(function (d) {
+                return d.visits > 100;
+            }), function (d) {
+                return (d.subscribers / d.visits);
+            })
+        ]);
+        yVisitsScale.domain([
+            0, 
+            d3.max(group, function (d) {
+                return d.visits;
+            })
+        ]);
+        var section = d3.select("body").append("section");
+        section.append("h2").text(key);
+        var g = section.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(group);
+        g.append("path").attr("class", "line conversion").attr("d", function (d, i) {
+            return convLine.apply(_this, [
+                d
+            ]);
+        });
+        g.append("path").attr("class", "line visits").attr("d", function (d, i) {
+            return makeVisitsLine(d).apply(_this, [
+                d
+            ]);
+        });
+        g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+        g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
+        var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
+        g.append("g").attr("class", "y axis").call(yVisitsAxis).append("text").attr("transform", "rotate(-40)").attr("y", -15).attr("dy", ".81em").style("text-anchor", "end").text("Visits");
+    });
+    return;
     var nested = d3.nest().key(function (d) {
         return d.country;
     }).key(function (d) {
