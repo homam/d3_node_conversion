@@ -73,6 +73,8 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
               d3.max(group, d => d.visits)
             ]);
 
+            group = smooth(group, 7);
+
             var section = d3.select("body").append("section");
             section.append("h2").text(country + " " + service);
 
@@ -89,7 +91,7 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                 .attr("class", "line visits").attr("d", (d, i) => visitsLine.apply(this, [d]));
 
             g.append("path")
-                .attr("class", "line confDisplay").attr("d", (d, i) => confDisplayRatioLine.apply(this, [d]));
+                .attr("class", "line confDisplay").attr("d", confDisplayRatioLine);
 
             g.append("g")
            .attr("class", "x axis")
@@ -131,3 +133,21 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
    
  
 });
+
+
+
+var smooth = function (raw: any[],setSize:number) {
+    var data = raw.map(r => _.clone(r));
+    var sum = (arr: number[]) => _(arr).reduce((a, b) => a + b, 0);
+    var avg = (arr: number[]) => sum(arr) / arr.length;
+    var smoothed = data.map((d, i) => {
+        var nextSet = data.slice(i, i + setSize);
+        for (var p in d) {
+            if ('number' == typeof (d[p])) {
+                d[p] = avg(nextSet.map(i => i[p]));
+            }
+        }
+        return d;
+    });
+    return smoothed;
+};

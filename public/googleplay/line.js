@@ -94,6 +94,7 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                     return d.visits;
                 })
             ]);
+            group = smooth(group, 7);
             var section = d3.select("body").append("section");
             section.append("h2").text(country + " " + service);
             var g = section.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(group);
@@ -107,11 +108,7 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                     d
                 ]);
             });
-            g.append("path").attr("class", "line confDisplay").attr("d", function (d, i) {
-                return confDisplayRatioLine.apply(_this, [
-                    d
-                ]);
-            });
+            g.append("path").attr("class", "line confDisplay").attr("d", confDisplayRatioLine);
             g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
             g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
             var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
@@ -119,3 +116,28 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
         });
     });
 });
+var smooth = function (raw, setSize) {
+    var data = raw.map(function (r) {
+        return _.clone(r);
+    });
+    var sum = function (arr) {
+        return _(arr).reduce(function (a, b) {
+            return a + b;
+        }, 0);
+    };
+    var avg = function (arr) {
+        return sum(arr) / arr.length;
+    };
+    var smoothed = data.map(function (d, i) {
+        var nextSet = data.slice(i, i + setSize);
+        for(var p in d) {
+            if('number' == typeof (d[p])) {
+                d[p] = avg(nextSet.map(function (i) {
+                    return i[p];
+                }));
+            }
+        }
+        return d;
+    });
+    return smoothed;
+};
