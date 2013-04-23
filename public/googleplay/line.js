@@ -24,6 +24,10 @@ var yConvScale = d3.scale.linear().range([
     height, 
     0
 ]);
+var yConfDisplayRatio = d3.scale.linear().range([
+    height, 
+    0
+]);
 var xAxis = d3.svg.axis().scale(x).orient("bottom");
 var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
 var ySubscribersAxis = d3.svg.axis().scale(ySubscribersScale).orient("right");
@@ -41,53 +45,16 @@ var convLine = d3.svg.line().interpolate("basis").x(function (d) {
     return yConvScale(d.subscribers / d.visits);
 });
 var subscribersLine = d3.svg.line().interpolate("basis").x(function (d) {
-    return x(d.day);
+    return x(d.date);
 }).y(function (d) {
     return ySubscribersScale(d.subscribers);
 });
-var makeVisitsLine = (function () {
-    var cache = {
-    };
-    return function (items) {
-        var key = items[0].country + '__' + items[0].service;
-        var line = cache[key];
-        if(!!line) {
-            return line;
-        }
-        var scale = makeVisitsScale(items);
-        line = d3.svg.line().interpolate("basis").x(function (d) {
-            return x(d.date);
-        }).y(function (d) {
-            return scale(d.visits);
-        });
-        cache[key] = line;
-        return line;
-    }
-})();
-var makeVisitsScale = (function () {
-    var cache = {
-    };
-    return function (items) {
-        var key = items[0].country + '__' + items[0].service;
-        var scale = cache[key];
-        if(!!scale) {
-            return scale;
-        }
-        scale = d3.scale.linear().range([
-            height, 
-            0
-        ]).domain([
-            0, 
-            d3.max(items, function (r) {
-                return r.visits;
-            })
-        ]);
-        cache[scale] = scale;
-        return scale;
-    }
-})();
+var confDisplayRatioLine = d3.svg.line().interpolate("basis").x(function (d) {
+    return x(d.date);
+}).y(function (d) {
+    return yConfDisplayRatio(d.confirmation_displayed / (d.launches || 1));
+});
 d3.csv("/googleplay/gplay.csv", function (raw) {
-    var _this = this;
     raw = raw.map(function (d) {
         d.date = parseDate(d.date);
         [
@@ -106,74 +73,49 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
     x.domain(d3.extent(raw, function (d) {
         return d.date;
     }));
-    var groups = _(raw).groupBy(function (r) {
-        return r.country + '__' + r.service;
-    });
-    _(groups).forEach(function (group, key) {
-        var _this = this;
-        yConvScale.domain([
-            0, 
-            d3.max(group.filter(function (d) {
-                return d.visits > 100;
-            }), function (d) {
-                return (d.subscribers / d.visits);
-            })
-        ]);
-        yVisitsScale.domain([
-            0, 
-            d3.max(group, function (d) {
-                return d.visits;
-            })
-        ]);
-        var section = d3.select("body").append("section");
-        section.append("h2").text(key);
-        var g = section.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(group);
-        g.append("path").attr("class", "line conversion").attr("d", function (d, i) {
-            return convLine.apply(_this, [
-                d
+    _(raw).chain().groupBy(function (r) {
+        return r.country;
+    }).forEach(function (cgroup, country) {
+        _(cgroup).chain().groupBy(function (r) {
+            return r.service;
+        }).forEach(function (group, service) {
+            var _this = this;
+            yConvScale.domain([
+                0, 
+                d3.max(group.filter(function (d) {
+                    return d.visits > 100;
+                }), function (d) {
+                    return (d.subscribers / d.visits);
+                })
             ]);
-        });
-        g.append("path").attr("class", "line visits").attr("d", function (d, i) {
-            return makeVisitsLine(d).apply(_this, [
-                d
+            yVisitsScale.domain([
+                0, 
+                d3.max(group, function (d) {
+                    return d.visits;
+                })
             ]);
+            var section = d3.select("body").append("section");
+            section.append("h2").text(country + " " + service);
+            var g = section.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(group);
+            g.append("path").attr("class", "line conversion").attr("d", function (d, i) {
+                return convLine.apply(_this, [
+                    d
+                ]);
+            });
+            g.append("path").attr("class", "line visits").attr("d", function (d, i) {
+                return visitsLine.apply(_this, [
+                    d
+                ]);
+            });
+            g.append("path").attr("class", "line confDisplay").attr("d", function (d, i) {
+                return confDisplayRatioLine.apply(_this, [
+                    d
+                ]);
+            });
+            g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+            g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
+            var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
+            g.append("g").attr("class", "y axis visits").call(yVisitsAxis).append("text").attr("transform", "rotate(-40)").attr("y", -15).attr("dy", ".81em").style("text-anchor", "end").text("Visits");
         });
-        g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
-        g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
-        var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
-        g.append("g").attr("class", "y axis").call(yVisitsAxis).append("text").attr("transform", "rotate(-40)").attr("y", -15).attr("dy", ".81em").style("text-anchor", "end").text("Visits");
     });
-    return;
-    var nested = d3.nest().key(function (d) {
-        return d.country;
-    }).key(function (d) {
-        return d.service;
-    }).entries(raw);
-    var countries = d3.select("body").append("section").selectAll("div.country").data(nested).enter().append("div").attr("class", "country");
-    countries.append("h2").text(function (d) {
-        return d.key;
-    });
-    var services = countries.selectAll('div.service').data(function (d) {
-        return d.values;
-    }).enter().append("div").attr('class', 'service');
-    services.append("h3").text(function (d) {
-        return d.key;
-    });
-    var g = services.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(function (d) {
-        return d.values;
-    });
-    g.append("path").attr("class", "line conversion").attr("d", function (d, i) {
-        return convLine.apply(_this, [
-            d
-        ]);
-    });
-    g.append("path").attr("class", "line visits").attr("d", function (d, i) {
-        return makeVisitsLine(d).apply(_this, [
-            d
-        ]);
-    });
-    g.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
-    g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
-    var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
-    g.append("g").attr("class", "y axis").call(yVisitsAxis).append("text").attr("transform", "rotate(-40)").attr("y", -15).attr("dy", ".81em").style("text-anchor", "end").text("Visits");
 });
