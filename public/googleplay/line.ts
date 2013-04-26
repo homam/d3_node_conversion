@@ -1,56 +1,64 @@
 ﻿/// <reference path="../lib/d3types.ts" />
 /// <reference path="../lib/underscore.browser.d.ts" />
 
+interface ILine { 
+    scale?: ID3LinearScale;
+    axis?: ID3SvgAxis;
+    line?: ID3Line;
+};
 
 var margin = { top: 20, right: 30, bottom: 30, left: 40 },
-    width = 600 - margin.left - margin.right,
+    width = 700 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y-%m-%d").parse;
 
-var x = d3.time.scale().range([0, width]);
 
-var yVisitsScale = d3.scale.linear().range([height, 0]);
-var ySubscribersScale = d3.scale.linear().range([height, 0]);
-var yConvScale = d3.scale.linear().range([height, 0]);
-var yConfDisplayRatio = d3.scale.linear().range([height, 0]);
+var makeYScale = function () {
+    return d3.scale.linear().range([height, 0]);
+};
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom")
+var x = d3.time.scale().range([0, width]),
+    yVisitsScale = makeYScale(),
+    ySubscribersScale = makeYScale(),
+    yConvScale = makeYScale(),
+    yConfDisplayRatioScale = makeYScale(),
+    yConfDisplayScale = makeYScale();
 
-var yVisitsAxis = d3.svg.axis()
-    .scale(yVisitsScale)
-    .orient("left");
+//#region axes
 
-var ySubscribersAxis = d3.svg.axis()
-    .scale(ySubscribersScale)
-    .orient("right");
+var ratioFormat = a => parseInt((a * 1000) + '') / 10 + '%';
 
-var yConvAxis = d3.svg.axis()
-    .scale(yConvScale)
-    .orient("right").tickFormat(a => parseInt((a*1000)+'')/10 + '%');
+var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom"),
+    yVisitsAxis = d3.svg.axis().scale(yVisitsScale)
+        .orient("left"),
+    ySubscribersAxis = d3.svg.axis().scale(ySubscribersScale)
+        .orient("right"),
+    yConvAxis = d3.svg.axis().scale(yConvScale)
+        .orient("right").tickFormat(ratioFormat),
+    yConfDisplayAxis = d3.svg.axis().scale(yConfDisplayScale)
+        .orient("right");
 
-var visitsLine = d3.svg.line()
-    .interpolate("basis")
-    .x(d => x(d.date))
-    .y(d => yVisitsScale(d.visits));
+//#endregion
 
-var convLine = d3.svg.line()
-    .interpolate("basis")
-    .x(d => x(d.date))
-    .y(d => yConvScale(d.subscribers / d.visits));
+//#region lines
 
-var subscribersLine = d3.svg.line()
-    .interpolate("basis")
-    .x(d => x(d.date))
-    .y(d => ySubscribersScale(d.subscribers));
+var makeLine = function () {
+    return d3.svg.line().interpolate("basis").x(d => x(d.date));
+};
 
-var confDisplayRatioLine = d3.svg.line().interpolate("basis")
-    .x(d => x(d.date))
-    .y(d => yConfDisplayRatio(d.confirmation_displayed / (d.launches || 1)));
+var visitsLine = makeLine().y(d => yVisitsScale(d.visits)),
+    convLine = makeLine().y(d => yConvScale(d.subscribers / d.visits)),
+    subscribersLine = makeLine().y(d => ySubscribersScale(d.subscribers)),
+    confDisplayRatioLine = makeLine().y(d => yConfDisplayRatioScale(d.confirmation_displayed / (d.launches || 1))),
+    confDisplayLine = makeLine().y(d => yConfDisplayScale(d.confirmation_displayed));
+
+//#endregion
 
 d3.csv("/googleplay/gplay.csv", function (raw) {
+
+    //#region parser
 
     raw = raw.map(d => {
 
@@ -61,42 +69,46 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
 
     });
 
+    //#endregion
+
     x.domain(d3.extent(raw, d => d.date));
 
     _(raw).chain().groupBy(r => r.country).forEach(function (cgroup, country) {
         _(cgroup).chain().groupBy(r => r.service).forEach(function (group, service) {
 
             yConvScale.domain([0,
-            d3.max(group.filter(d => d.visits > 100), d =>(d.subscribers / d.visits))
+                d3.max(group.filter(d => d.visits > 100), d =>(d.subscribers / d.visits))
             ]);
             yVisitsScale.domain([0,
               d3.max(group, d => d.visits)
             ]);
+            yConfDisplayScale.domain([0, d3.max(group, d=>d.confirmation_displayed)]);
 
             group = smooth(group, 7);
 
             var section = d3.select("body").append("section");
             section.append("h2").text(country + " " + service);
 
+            //#region svg
+
             var g = section.append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .datum(group);
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .datum(group);
 
-            g.append("path")
-                .attr("class", "line conversion").attr("d", (d, i) => convLine.apply(this, [d]));
-            g.append("path")
-                .attr("class", "line visits").attr("d", (d, i) => visitsLine.apply(this, [d]));
+            //#endregion
 
-            g.append("path")
-                .attr("class", "line confDisplay").attr("d", confDisplayRatioLine);
+            g.append("path").attr("class", "line visits").attr("d", visitsLine);
+            g.append("path").attr("class", "line conversion").attr("d", convLine);
+            g.append("path").attr("class", "line confDisplayRatio").attr("d", confDisplayRatioLine);
+            g.append("path").attr("class", "line confDisplay").attr("d", confDisplayLine);
 
             g.append("g")
-           .attr("class", "x axis")
-           .attr("transform", "translate(0," + height + ")")
-           .call(xAxis);
+               .attr("class", "x axis")
+               .attr("transform", "translate(0," + height + ")")
+               .call(xAxis);
 
             g.append("g")
                 .attr("class", "y axis conversion")
@@ -109,11 +121,16 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                 .style("text-anchor", "end")
                 .text("Conversion");
 
-
-            var yVisitsAxis = d3.svg.axis()
-                .scale(yVisitsScale)
-             .orient("left");
-
+            g.append("g")
+                .attr("class", "y axis confDisplay")
+                .attr('transform', 'translate(' + (20) + ',0)')
+                .call(yConfDisplayAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -10)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Confirmation Displays");
 
 
             g.append("g")

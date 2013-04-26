@@ -20,10 +20,6 @@
 			stroke: purple;
 		}
 
-		.x.axis path {
-		  _display: none;
-		}
-
 		.y.axis.conversion {
 			fill: purple;
 		}
@@ -45,9 +41,17 @@
 			 stroke: purple;
 		}
 
-		.line.confDisplay {
+		.line.confDisplayRatio  {
 			 stroke: rgba(120,120,120,.5);
 			 stroke-dasharray: 5,5;
+		}
+
+		.line.confDisplay, .y.axis.confDisplay path {
+			 stroke: rgba(0,120,220,.5);
+			 stroke-dasharray: 5,5;
+		}
+		.y.axis.confDisplay {
+			fill:rgba(0,120,220,.5);
 		}
 
 	</style>
