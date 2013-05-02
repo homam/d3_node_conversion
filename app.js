@@ -33,7 +33,8 @@ app.configure('development', function () {
     'histogram', 
     'histogramg', 
     'kenya', 
-    'googleplay'
+    'googleplay', 
+    'googleplay-perref'
 ].forEach(function (v) {
     app.get('/' + v, function (req, res) {
         return res.render(v, {

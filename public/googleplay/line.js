@@ -9,6 +9,9 @@ var width = 700 - margin.left - margin.right;
 var height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y-%m-%d").parse;
+var bisectDate = d3['bisector'](function (d) {
+    return d.date.valueOf();
+});
 var makeYScale = function () {
     return d3.scale.linear().range([
         height, 
@@ -112,6 +115,29 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
             g.append("g").attr("class", "y axis conversion").attr('transform', 'translate(' + (width) + ',0)').call(yConvAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Conversion");
             g.append("g").attr("class", "y axis confDisplay").attr('transform', 'translate(' + (20) + ',0)').call(yConfDisplayAxis).append("text").attr("transform", "rotate(-90)").attr("y", -10).attr("dy", ".71em").style("text-anchor", "end").text("Confirmation Displays");
             g.append("g").attr("class", "y axis visits").call(yVisitsAxis).append("text").attr("transform", "rotate(-40)").attr("y", -15).attr("dy", ".81em").style("text-anchor", "end").text("Visits");
+            var focus = g.append("g").attr("class", "focus").style("display", "none");
+            focus.append("text").attr("x", 9).attr("dy", ".35em");
+            var mousemove = function () {
+                var x0 = x.invert(d3['mouse'](this)[0]);
+                var i = group.filter(function (d) {
+                    return Math.abs(d.date - x0) < 24 * 60 * 60 * 1000;
+                });
+                console.log(i);
+                return;
+                var d0 = group[i - 1];
+                var d1 = group[i];
+                var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+                focus.attr("transform", "translate(" + x(d.date) + "," + yVisitsScale(d.visits) + ")");
+                focus.select("text").text(function (d) {
+                    return d.visits;
+                });
+            };
+            g.append("rect").attr("class", "overlay").attr("width", width).attr("height", height).on("mouseover", function () {
+                focus.style("display", null);
+            }).on("mouseout", function () {
+                focus.style("display", "none");
+            }).on("mousemove", mousemove);
         });
     });
 });

@@ -31,7 +31,7 @@ app.configure('development', () => {
          ,'devices-d3', 'devices-d3-partition',
              'histogram', 'histogramg'
              ,'kenya',
-             'googleplay'].forEach(v => {
+             'googleplay', 'googleplay-perref'].forEach(v => {
     app.get('/' + v, (req, res) => res.render(v, {}));
 });
 

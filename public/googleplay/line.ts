@@ -12,6 +12,7 @@ var margin = { top: 20, right: 30, bottom: 30, left: 40 },
     height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y-%m-%d").parse;
+var bisectDate = d3['bisector'](function (d) { return d.date.valueOf(); });
 
 
 var makeYScale = function () {
@@ -105,6 +106,8 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
             g.append("path").attr("class", "line confDisplayRatio").attr("d", confDisplayRatioLine);
             g.append("path").attr("class", "line confDisplay").attr("d", confDisplayLine);
 
+            //#region axes
+
             g.append("g")
                .attr("class", "x axis")
                .attr("transform", "translate(0," + height + ")")
@@ -142,6 +145,40 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                 .attr("dy", ".81em")
                 .style("text-anchor", "end")
                 .text("Visits");
+
+            //#endregion
+
+             var focus = g.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+              focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+
+  var mousemove = function() {
+      //console.log(x.invert(d3['mouse'](this)[0]));
+      var x0 = x.invert(d3['mouse'](this)[0]);
+        //i = bisectDate.right(group, x0.valueOf(), 1);
+    var i = group.filter(d => Math.abs( d.date - x0)<24*60*60*1000);
+    console.log(i);
+      return;
+        var d0 = group[i - 1],
+        d1 = group[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+      //console.log(x0)
+    focus.attr("transform", "translate(" + x(d.date) + "," + yVisitsScale(d.visits) + ")");
+    focus.select("text").text(d => d.visits);
+  }
+
+
+  g.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function () { focus.style("display", null); })
+      .on("mouseout", function () { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
 
         });
 
