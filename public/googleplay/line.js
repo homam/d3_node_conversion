@@ -1,13 +1,9 @@
 ; ;
 var margin = {
-    top: 20,
-    right: 30,
-    bottom: 30,
-    left: 40
-};
-var width = 700 - margin.left - margin.right;
-var height = 300 - margin.top - margin.bottom;
-
+top: 20,
+right: 30,
+bottom: 30,
+left: 40}, width = 700 - margin.left - margin.right, height = 300 - margin.top - margin.bottom;
 var parseDate = d3.time.format("%Y-%m-%d").parse;
 var bisectDate = d3['bisector'](function (d) {
     return d.date.valueOf();
@@ -19,45 +15,23 @@ var makeYScale = function () {
     ]);
 };
 var x = d3.time.scale().range([
-    0, 
-    width
-]);
-var yVisitsScale = makeYScale();
-var ySubscribersScale = makeYScale();
-var yConvScale = makeYScale();
-var yConfDisplayRatioScale = makeYScale();
-var yConfDisplayScale = makeYScale();
-
+0, 
+width]), yVisitsScale = makeYScale(), ySubscribersScale = makeYScale(), yConvScale = makeYScale(), yConfDisplayRatioScale = makeYScale(), yConfDisplayScale = makeYScale();
 var ratioFormat = function (a) {
     return parseInt((a * 1000) + '') / 10 + '%';
 };
-var xAxis = d3.svg.axis().scale(x).orient("bottom");
-var yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left");
-var ySubscribersAxis = d3.svg.axis().scale(ySubscribersScale).orient("right");
-var yConvAxis = d3.svg.axis().scale(yConvScale).orient("right").tickFormat(ratioFormat);
-var yConfDisplayAxis = d3.svg.axis().scale(yConfDisplayScale).orient("right");
-
+var xAxis = d3.svg.axis().scale(x).orient("bottom"), yVisitsAxis = d3.svg.axis().scale(yVisitsScale).orient("left"), ySubscribersAxis = d3.svg.axis().scale(ySubscribersScale).orient("right"), yConvAxis = d3.svg.axis().scale(yConvScale).orient("right").tickFormat(ratioFormat), yConfDisplayAxis = d3.svg.axis().scale(yConfDisplayScale).orient("right");
 var makeLine = function () {
     return d3.svg.line().interpolate("basis").x(function (d) {
         return x(d.date);
     });
 };
 var visitsLine = makeLine().y(function (d) {
-    return yVisitsScale(d.visits);
-});
-var convLine = makeLine().y(function (d) {
-    return yConvScale(d.subscribers / d.visits);
-});
-var subscribersLine = makeLine().y(function (d) {
-    return ySubscribersScale(d.subscribers);
-});
-var confDisplayRatioLine = makeLine().y(function (d) {
-    return yConfDisplayRatioScale(d.confirmation_displayed / (d.launches || 1));
-});
-var confDisplayLine = makeLine().y(function (d) {
-    return yConfDisplayScale(d.confirmation_displayed);
-});
-
+return yVisitsScale(d.visits);}), convLine = makeLine().y(function (d) {
+return yConvScale(d.subscribers / d.visits);}), subscribersLine = makeLine().y(function (d) {
+return ySubscribersScale(d.subscribers);}), confDisplayRatioLine = makeLine().y(function (d) {
+return yConfDisplayRatioScale(d.confirmation_displayed / (d.launches || 1));}), confDisplayLine = makeLine().y(function (d) {
+return yConfDisplayScale(d.confirmation_displayed);});
 d3.csv("/googleplay/gplay.csv", function (raw) {
     raw = raw.map(function (d) {
         d.date = parseDate(d.date);
@@ -103,7 +77,6 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                     return d.confirmation_displayed;
                 })
             ]);
-            group = smooth(group, 7);
             var section = d3.select("body").append("section");
             section.append("h2").text(country + " " + service);
             var g = section.append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")").datum(group);
@@ -124,10 +97,7 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
                 });
                 console.log(i);
                 return;
-                var d0 = group[i - 1];
-                var d1 = group[i];
-                var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-
+                var d0 = group[i - 1], d1 = group[i], d = x0 - d0.date > d1.date - x0 ? d1 : d0;
                 focus.attr("transform", "translate(" + x(d.date) + "," + yVisitsScale(d.visits) + ")");
                 focus.select("text").text(function (d) {
                     return d.visits;

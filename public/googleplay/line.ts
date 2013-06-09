@@ -85,7 +85,7 @@ d3.csv("/googleplay/gplay.csv", function (raw) {
             ]);
             yConfDisplayScale.domain([0, d3.max(group, d=>d.confirmation_displayed)]);
 
-            group = smooth(group, 7);
+            //group = smooth(group, 7);
 
             var section = d3.select("body").append("section");
             section.append("h2").text(country + " " + service);
